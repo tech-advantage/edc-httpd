@@ -1,11 +1,19 @@
 group 'fr.techad.edc'
 version '1.0.0-SNAPSHOT'
 
+apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: "maven"
+apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.8
 mainClassName = 'com.networknt.server.Server'
+
+ext {
+    // the password needs to be specified via command line with -P
+    repoUrl = project.hasProperty('repoUrl') ? project.getProperty('repoUrl') : ''
+    repoLogin = project.hasProperty('repoLogin') ? project.getProperty('repoLogin') : ''
+    repoPass = project.hasProperty('repoPass') ? project.getProperty('repoPass') : ''
+}
 
 repositories {
     mavenCentral()
@@ -27,3 +35,52 @@ jar {
         )
     }
 }
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().with {
+                    appendNode('packaging', 'jar')
+                    appendNode('name', 'edc httpd')
+                    appendNode('description', 'Embedded httpd server to serve the help documentation published by edc')
+                    appendNode('url', 'https://www.easydoccontents.com')
+                    appendNode('organization').with {
+                        appendNode('name', 'TECH advantage')
+                        appendNode('url', 'https://www.tech-advantage.com')
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "${project.repoUrl}/${project.version.endsWith('-SNAPSHOT') ? 'snapshot' : 'release' }"
+            credentials {
+                username project.repoLogin
+                password project.repoPass
+            }
+        }
+    }
+}
+
