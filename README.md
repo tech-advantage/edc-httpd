@@ -1,7 +1,24 @@
 # edc httpd 
 
-edc httpd is an embedded httpd server to serve the edc documention in standalone java application.
+edc httpd is an embedded httpd server to serve the edc documentation in standalone java application.
 
+## How can I get the latest release?
+
+You can pull it from the central Maven repositories:
+
+### Maven
+```xml
+<dependency>
+  <groupId>fr.techad</groupId>
+  <artifactId>edc-httpd-java</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+### Gradle
+```groovy
+    compile group: 'fr.techad', name: 'edc-httpd-java', version: '1.0.0'
+```
 ## Configuration
 
 ### Define the path
@@ -23,26 +40,6 @@ enableHttp: true
 ```
 
 Modify the `httpPort` to define the nw port value.
-
-### Add the dependency
-
-**Maven**
-
-Add the dependency in your `pom.xml` for maven
-
-```xml
-<dependency>
-  <groupId>fr.techad.edc</groupId>
-  <artifactId>httpd-java</artifactId>
-  <version>1.0.0</version>
-</dependency>
-```
-
-**Gradle**
-
-```groovy
-compile group: 'fr.techad.edc', name: 'httpd-java', version: '1.0.0'
-```
 
 ### Start the server
 

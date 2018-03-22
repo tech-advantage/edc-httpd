@@ -1,22 +1,20 @@
-group 'fr.techad.edc'
-version '1.0.0-SNAPSHOT'
+group 'fr.techad'
+version '1.0.0'
 
 apply plugin: 'java'
-apply plugin: 'application'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.8
-mainClassName = 'com.networknt.server.Server'
 
 ext {
-    // the password needs to be specified via command line with -P
-    repoUrl = project.hasProperty('repoUrl') ? project.getProperty('repoUrl') : ''
-    repoLogin = project.hasProperty('repoLogin') ? project.getProperty('repoLogin') : ''
-    repoPass = project.hasProperty('repoPass') ? project.getProperty('repoPass') : ''
+    isReleaseVersion = !version.endsWith("SNAPSHOT")
+    signArtefact = project.hasProperty('ossrhUsername')
 }
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -27,15 +25,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-jar {
-    manifest {
-        attributes ('Implementation-Version': version,
-                'Main-Class': "$mainClassName",
-                'Class-Path': "config/" + " " + configurations.runtime.files.collect {"dependency-jars/$it.name" }.join(' ')
-        )
-    }
-}
-
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -44,6 +33,14 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
 }
 
 artifacts {
@@ -59,6 +56,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
 
+            pom.packaging = 'jar'
             pom.withXml {
                 asNode().with {
                     appendNode('packaging', 'jar')
@@ -69,18 +67,93 @@ publishing {
                         appendNode('name', 'TECH advantage')
                         appendNode('url', 'https://www.tech-advantage.com')
                     }
+                    appendNode('licenses').with {
+                        appendNode('license').with {
+                            appendNode('name', 'MIT License')
+                            appendNode('url', 'http://www.opensource.org/licenses/mit-license.php')
+                            appendNode('distribution', 'repo')
+                        }
+                    }
+                    appendNode('scm').with {
+                        appendNode('url', 'https://github.com/tech-advantage/edc-httpd-java')
+                        appendNode('connection', 'scm:git:git://github.com/tech-advantage/edc-httpd-java.git')
+                    }
+                    appendNode('developers').with {
+                        appendNode('developer').with {
+                            appendNode('name', 'Gregory Cochon')
+                            appendNode('email', 'gregory.cochon@tech-advantage.com')
+                        }
+                    }
+                }
+            }
+            if (signArtefact) {
+                // sign the pom
+                pom.withXml {
+                    def pomFile = file("${project.buildDir}/publications/mavenJava/pom-default.xml")
+                    writeTo(pomFile)
+                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                    artifact(pomAscFile) {
+                        classifier = null
+                        extension = 'pom.asc'
+                    }
+                    //  pomFile.delete()
+                }
+
+                // sign the artifacts
+                project.tasks.signArchives.signatureFiles.each {
+                    artifact(it) {
+                        def matcher = it.file =~ /-(sources|javadoc|jre9)\.jar\.asc$/
+                        if (matcher.find()) {
+                            classifier = matcher.group(1)
+                        } else {
+                            classifier = null
+                        }
+                        extension = 'jar.asc'
+                    }
                 }
             }
         }
     }
     repositories {
         maven {
-            url "${project.repoUrl}/${project.version.endsWith('-SNAPSHOT') ? 'snapshot' : 'release' }"
+            url isReleaseVersion ? "https://oss.sonatype.org/service/local/staging/deploy/maven2" : "https://oss.sonatype.org/content/repositories/snapshots"
             credentials {
-                username project.repoLogin
-                password project.repoPass
+                username ossrhUsername
+                password ossrhPassword
             }
         }
     }
 }
 
+signing {
+    required { signArtefact && gradle.taskGraph.hasTask("publishing") }
+    sign configurations.archives
+}
+
+model {
+    tasks.publishMavenJavaPublicationToMavenLocal {
+        dependsOn(project.tasks.signArchives)
+    }
+    tasks.publishMavenJavaPublicationToMavenRepository {
+        dependsOn(project.tasks.signArchives)
+    }
+    tasks.publish {
+        dependsOn(project.tasks.build)
+    }
+    tasks.install {
+        dependsOn(project.tasks.build)
+    }
+}
+
+task install(dependsOn: publishToMavenLocal) {
+    group = 'Publishing'
+    description = 'Installs artifacts to local Maven repository'
+}
+
+task release() {
+    group 'Project'
+    description 'Build project as release.'
+
+    dependsOn build
+    dependsOn javadoc
+}
