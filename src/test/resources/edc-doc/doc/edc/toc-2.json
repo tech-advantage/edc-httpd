@@ -1,0 +1,234 @@
+{
+  "id": "2",
+  "en": {
+    "label": "How tos",
+    "topics": [
+      {
+        "id": "8",
+        "label": "Building contextualised information",
+        "type": "CHAPTER",
+        "url": "edc/html/en/2/8.html",
+        "topics": [
+          {
+            "id": "10",
+            "label": "Adding contextualised help to a UI brick",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/10.html",
+            "topics": [
+            ],
+            "links": [
+              {
+                "id": "49",
+                "label": "Creating a storehouse",
+                "type": "DOCUMENT",
+                "url": "edc/html/en/2/49.html"
+              }
+            ]
+          },
+          {
+            "id": "12",
+            "label": "Writing questions users will ask",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/12.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          }
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "9",
+        "label": "Managing products",
+        "type": "CHAPTER",
+        "url": "edc/html/en/2/9.html",
+        "topics": [
+          {
+            "id": "15",
+            "label": "Creating/copying a product",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/15.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "18",
+            "label": "Creating a new product version",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/18.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "20",
+            "label": "Activating or deactivating a product",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/20.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "22",
+            "label": "Giving users access to products",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/22.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "24",
+            "label": "Adding a user to a product",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/24.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "28",
+            "label": "Removing user access to a product",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/28.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          }
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "32",
+        "label": "Managing users",
+        "type": "CHAPTER",
+        "url": "edc/html/en/2/32.html",
+        "topics": [
+          {
+            "id": "33",
+            "label": "Creating a user account",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/33.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "38",
+            "label": "Activating or deactivating users",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/38.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "42",
+            "label": "Allowing a user access to another storehouse",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/42.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "45",
+            "label": "Changing a user's role",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/45.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          }
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "48",
+        "label": "Storehouse management",
+        "type": "CHAPTER",
+        "url": "edc/html/en/2/48.html",
+        "topics": [
+          {
+            "id": "49",
+            "label": "Creating a storehouse",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/49.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "55",
+            "label": "Adding storehouse managers",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/55.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          },
+          {
+            "id": "59",
+            "label": "Removing a storehouse manager",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/2/59.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          }
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "64",
+        "label": "Managing content",
+        "type": "CHAPTER",
+        "url": "edc/html/en/2/64.html",
+        "topics": [
+          {
+            "id": "65",
+            "label": "Managing links inside edc content",
+            "type": "CHAPTER",
+            "url": "edc/html/en/2/65.html",
+            "topics": [
+              {
+                "id": "66",
+                "label": "Adding a link to a glossary entry",
+                "type": "DOCUMENT",
+                "url": "edc/html/en/2/66.html",
+                "topics": [
+                ],
+                "links": [
+                ]
+              }
+            ],
+            "links": [
+            ]
+          }
+        ],
+        "links": [
+        ]
+      }
+    ]
+  }
+}

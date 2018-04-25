@@ -1,0 +1,25 @@
+{
+  "fr.techad.edc": {
+    "text_editor": {
+      "en": {
+        "description": "The Text Editor",
+        "url": "edc/html/en/1/94/index.html",
+        "label": "Text Editor",
+        "articles": [
+          {
+            "id": "99",
+            "label": "About this option or subject",
+            "url": "edc/html/en/1/94/3.html"
+          },
+          {
+            "id": "100",
+            "label": "What are the pre-requisites?",
+            "url": "edc/html/en/1/94/5.html"
+          }
+        ],
+        "links": [
+        ]
+      }
+    }
+  }
+}

@@ -7,8 +7,10 @@ package fr.techad.edc.httpd;
  */
 public class WebServerConfig {
 
-    String base;
-    int transferMinSize = 100;
+    private String base;
+    private String indexPath=null;
+    private int transferMinSize = 100;
+
 
     public WebServerConfig() {
     }
@@ -19,6 +21,14 @@ public class WebServerConfig {
 
     public void setBase(String base) {
         this.base = base;
+    }
+
+    public String getIndexPath() {
+        return indexPath;
+    }
+
+    public void setIndexPath(String indexPath) {
+        this.indexPath = indexPath;
     }
 
     public int getTransferMinSize() {

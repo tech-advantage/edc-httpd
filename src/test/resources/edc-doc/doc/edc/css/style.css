@@ -1,0 +1,226 @@
+body {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: normal;
+    font-style: normal;
+    color: #111;
+    border-color: #0f0f0f;
+    vertical-align: top;
+    height: 100%;
+    min-height: 100%;
+    background-color: #ffffff;
+}
+
+#docContentArea {
+    padding: 10px;
+}
+
+h1 {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    font-style: normal;
+    color: #c23333;
+    border: 0 solid #c23333;
+    border-bottom-width: 2px;
+    margin: 10px 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+h2 {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 23px;
+    font-weight: bold;
+    font-style: normal;
+    color: #c23333;
+    border: 0 solid #c23333;
+    border-bottom-width: 1px;
+    margin: 10px 0;
+    padding-bottom: 5px;
+    padding-left: 0;
+    background-color: transparent;
+}
+
+h3 {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    font-style: normal;
+    color: #c23333;
+    border: 0 solid #4086d5;
+    border-bottom-width: 3px;
+    margin: 10px 0 25px 5px;
+    padding-bottom: 5px;
+    padding-left: 0;
+    background-color: transparent;
+}
+
+h4 {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    font-style: normal;
+    color: #e43131;
+    border: 0 solid #4086d5;
+    border-bottom-width: 1px;
+    margin: 25px 0 25px 5px;
+    padding-bottom: 3px;
+    padding-left: 0;
+    background-color: transparent;
+}
+
+h5 {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    font-style: normal;
+    color: #e43131;
+    margin: 18px 0 10px 5px;
+    padding-bottom: 3px;
+    padding-left: 0;
+    background-color: transparent;
+}
+
+h6 {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    font-style: normal;
+    color: black;
+    margin: 18px 0 10px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+    background-color: transparent;
+}
+
+table {
+    width: 98%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-family: Verdana, Geneva, sans-serif;
+    color: #94000b;
+    padding: 0;
+    border: 1px solid #FFFFFF;
+    background-color: transparent;
+    margin: 0 0 0 30px;
+}
+
+table tr {
+    text-align: left;
+}
+
+table th {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    font-style: normal;
+    color: #0f0f0f;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #4086d5;
+    border: 1px solid #4086d5;
+    border-bottom-width: 0;
+
+}
+
+table th p {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 16px;
+    color: #0f0f0f;
+    padding-top: 0;
+    background-color: #4086d5;
+}
+
+table td {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    color: #111;
+    padding: 5px;
+    border: 1px solid #4086d5;
+    border-top-width: 0;
+    background-color: #ffffff;
+    text-align: left;
+    vertical-align: top;
+    margin: 0;
+}
+
+table td p {
+    padding: 5px;
+    margin-left: 5px;
+}
+
+li, div {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: normal;
+    font-style: normal;
+    color: #111;
+    margin: 15px 0;
+}
+
+p {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: normal;
+    font-style: normal;
+    color: #111;
+    padding-left: 0;
+    margin: 15px 0 15px 30px;
+}
+
+ul li {
+    list-style: disc;
+    margin-left: 40px;
+}
+
+ol li {
+    /*list-style: decimal;*/
+    margin-left: 40px;
+}
+
+ol li ol li {
+    /*list-style: decimal;*/
+    margin-left: 10px;
+
+}
+
+ul li ul li {
+    /*list-style: decimal;*/
+    margin-left: 10px;
+
+}
+
+a {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: none;
+    color: #4086d5;
+    cursor: pointer;
+    padding: 0;
+}
+
+pre {
+    font-size: 15px;
+}
+
+abbr {
+    border-bottom: 1px dotted black;
+}
+
+body.placeholder, .placeholder p {
+    color: #999;
+    font-style: italic;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-right: 0;
+}
+
+.placeholder p {
+    margin-left: 0;
+}

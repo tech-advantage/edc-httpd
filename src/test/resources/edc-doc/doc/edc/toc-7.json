@@ -1,0 +1,88 @@
+{
+  "id": "7",
+  "en": {
+    "label": "Glossary",
+    "topics": [
+      {
+        "id": "78",
+        "label": "Contextualized help",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/78.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "86",
+        "label": "Molecular content",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/86.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "88",
+        "label": "Persona",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/88.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "90",
+        "label": "Product",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/90.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "80",
+        "label": "Storehouse",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/80.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "82",
+        "label": "Strategy",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/82.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "84",
+        "label": "Topology",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/84.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      },
+      {
+        "id": "92",
+        "label": "Version",
+        "type": "DOCUMENT",
+        "url": "edc/html/en/7/92.html",
+        "topics": [
+        ],
+        "links": [
+        ]
+      }
+    ]
+  }
+}

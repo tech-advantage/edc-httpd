@@ -1,0 +1,28 @@
+{
+  "id": "6",
+  "en": {
+    "label": "Concepts",
+    "topics": [
+      {
+        "id": "119",
+        "label": "The Concept",
+        "type": "CHAPTER",
+        "url": "edc/html/en/6/119.html",
+        "topics": [
+          {
+            "id": "120",
+            "label": "The concept",
+            "type": "DOCUMENT",
+            "url": "edc/html/en/6/120.html",
+            "topics": [
+            ],
+            "links": [
+            ]
+          }
+        ],
+        "links": [
+        ]
+      }
+    ]
+  }
+}
