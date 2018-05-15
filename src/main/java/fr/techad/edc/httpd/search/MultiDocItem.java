@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * TECH ADVANTAGE
  * All right reserved
  * Created by cochon on 22/03/2018.
- *
+ * <p>
  * This is the mapping class to multi-doc.json file
  */
 public class MultiDocItem {

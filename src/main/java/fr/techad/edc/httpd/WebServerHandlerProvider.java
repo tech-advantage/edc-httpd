@@ -35,8 +35,8 @@ public class WebServerHandlerProvider implements HandlerProvider {
         Runnable indexTask = () -> {
             try {
                 ContentIndexer contentIndexer = new ContentIndexer(config);
-                    contentIndexer.index();
-            }catch (IOException e) {
+                contentIndexer.index();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         };

@@ -8,7 +8,7 @@ package fr.techad.edc.httpd;
 public class WebServerConfig {
 
     private String base;
-    private String indexPath=null;
+    private String indexPath = null;
     private int transferMinSize = 100;
 
 

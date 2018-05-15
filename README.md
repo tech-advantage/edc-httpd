@@ -18,13 +18,13 @@ You can pull it from the central Maven repositories:
 <dependency>
   <groupId>fr.techad</groupId>
   <artifactId>edc-httpd-java</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-    compile group: 'fr.techad', name: 'edc-httpd-java', version: '1.1.0'
+    compile group: 'fr.techad', name: 'edc-httpd-java', version: '1.1.1'
 ```
 
 ## How can I search keyword in the content?
@@ -77,7 +77,9 @@ Modify the `httpPort` to define the new port value.
 
 ### Start the server
 
-To start the server, call `EdcWebServer.run();`  
+#### Based on the configuration file
+
+To start the server, call `EdcWebServer.run();`
 
 *Example*
 
@@ -93,7 +95,33 @@ public class Main {
     }
 }
 ```
+#### With port scan
 
+To start the server with a port scan, call `EdcWebServer.run("slf4j", minPort, maxPort);`.
+The server will start with the first free found port and return it.
+
+*Example*
+
+```java
+package fr.techad.edc.demo;
+
+import fr.techad.edc.httpd.EdcWebServer;
+import java.io.IOException;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Scan port between 8080 and 9080
+            int port = EdcWebServer.run("slf4j", 8080, 9080);
+            /* ... */
+        }
+        catch(IOExeption e) {
+            /* ... */
+        }
+        /* ... */
+    }
+}
+```
 ## License
 
 MIT [TECH'advantage](mailto:contact@tech-advantage.com)

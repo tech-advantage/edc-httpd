@@ -8,7 +8,7 @@ import java.util.List;
  * TECH ADVANTAGE
  * All right reserved
  * Created by cochon on 22/03/2018.
- *
+ * <p>
  * This is the mapping class to toc.json
  */
 public class Toc {

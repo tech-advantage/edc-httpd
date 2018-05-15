@@ -4,7 +4,7 @@ package fr.techad.edc.httpd.search;
  * TECH ADVANTAGE
  * All right reserved
  * Created by cochon on 23/03/2018.
- *
+ * <p>
  * Describe the documentation item define into toc-X.json
  */
 public class DocumentationItem {
