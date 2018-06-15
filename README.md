@@ -9,6 +9,10 @@ The server expose a web service to search in the content. The search is based on
 
 The search is done only in the document and chapter. The bricks are ignored.
 
+## edc Version
+
+Current release is compatible with edc v2.2+
+
 ## How can I get the latest release?
 
 You can pull it from the central Maven repositories:
