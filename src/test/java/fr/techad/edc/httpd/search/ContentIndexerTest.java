@@ -3,7 +3,6 @@ package fr.techad.edc.httpd.search;
 import fr.techad.edc.httpd.WebServerConfig;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +16,10 @@ public class ContentIndexerTest {
 
     @Test
     public void shouldIndexDocumentation() throws IOException {
-        WebServerConfig webServerConfigMock = Mockito.mock(WebServerConfig.class);
         File file = new File("src/test/resources/edc-doc");
-        Mockito.when(webServerConfigMock.getBase()).thenReturn(file.getAbsolutePath());
-        ContentIndexer contentIndexer = new ContentIndexer(webServerConfigMock);
+        WebServerConfig webServerConfig = new WebServerConfig();
+        webServerConfig.setBase(file.getAbsolutePath());
+        ContentIndexer contentIndexer = new ContentIndexer(webServerConfig);
         long number = contentIndexer.index();
         Assert.assertEquals(32, number);
     }

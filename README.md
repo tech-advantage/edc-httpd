@@ -22,13 +22,13 @@ You can pull it from the central Maven repositories:
 <dependency>
   <groupId>fr.techad</groupId>
   <artifactId>edc-httpd-java</artifactId>
-  <version>1.1.1</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-    compile group: 'fr.techad', name: 'edc-httpd-java', version: '1.1.1'
+    compile group: 'fr.techad', name: 'edc-httpd-java', version: '1.2.0'
 ```
 
 ## How can I search keyword in the content?
@@ -47,6 +47,11 @@ The query `/httpd/api/search?query=httpd AND server` returns help documentations
 
 The query `/httpd/api/search?query=http*` returns help documentations which contain the words which start with `http`.
 
+## How can I reindex the content?
+
+Use the web service : `/httpd/api/reindex`.
+This url can be called with your favorite browser (no mandatory to use curl)
+
 ## Configuration
 
 ### Define the path
@@ -59,12 +64,14 @@ base: /local/edc-httpd/html
 ```
 
 By default, the indexed content is stored in the folder `.edc/index` in the home user. It is possible to override this value with the variable `indexPath`.
+It is possible to activate an extra url to reindex the content on demand with the variable `indexUrlEnabled`. By default, this url is disabled. To reindex the content, call the url: `/httpd/api/reindex`.
 
 *Example*
 
 ```yaml
 base: /local/edc-httpd/html
 indexPath: /local/edc-httpd/.edc
+indexUrlEnabled: true
 ```
 
 *Optional*

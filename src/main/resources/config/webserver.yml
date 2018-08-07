@@ -1,3 +1,4 @@
 base: C:\\edc\\demo-2
 transferMinSize: 100
+indexUrlEnabled: true
 # indexPath: /html/.edc

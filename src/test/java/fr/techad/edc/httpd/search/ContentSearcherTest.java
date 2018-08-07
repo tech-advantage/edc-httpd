@@ -4,7 +4,6 @@ import fr.techad.edc.httpd.WebServerConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +18,10 @@ public class ContentSearcherTest {
 
     @Test
     public void shouldSearchStorehouse() throws IOException, ParseException {
-        WebServerConfig webServerConfigMock = Mockito.mock(WebServerConfig.class);
         File file = new File("src/test/resources/edc-doc");
-        Mockito.when(webServerConfigMock.getBase()).thenReturn(file.getAbsolutePath());
-        ContentSearcher contentSearcher = new ContentSearcher(webServerConfigMock);
+        WebServerConfig webServerConfig = new WebServerConfig();
+        webServerConfig.setBase(file.getAbsolutePath());
+        ContentSearcher contentSearcher = new ContentSearcher(webServerConfig);
         List<DocumentationSearchResult> searchResults = contentSearcher.search("storehouse");
         Assert.assertEquals(11, searchResults.size());
 

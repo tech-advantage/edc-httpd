@@ -41,7 +41,7 @@ public class ContentIndexer extends ContentBase {
 
     public ContentIndexer(WebServerConfig webServerConfig) {
         super(webServerConfig);
-        this.docBase = webServerConfig.getBase() + "/doc/";
+        this.docBase = webServerConfig.getBase() + "/" + webServerConfig.getDocFolder() + "/";
     }
 
     /**
@@ -99,6 +99,7 @@ public class ContentIndexer extends ContentBase {
         if (tocXJsonFile.exists()) {
             FileInputStream fileInputStream = FileUtils.openInputStream(tocXJsonFile);
             String content = IOUtils.toString(fileInputStream, Charset.defaultCharset());
+            fileInputStream.close();
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(content);
             Long strategyId = actualObj.get("id").asLong();

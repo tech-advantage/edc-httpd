@@ -23,9 +23,11 @@ import java.util.Map;
 public class SearchHandler implements HttpHandler {
     static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
     private final ObjectMapper objectMapper;
+    private final WebServerConfig config;
 
-    public SearchHandler(ObjectMapper objectMapper) {
+    public SearchHandler(ObjectMapper objectMapper, WebServerConfig config) {
         this.objectMapper = objectMapper;
+        this.config = config;
     }
 
     public void handleRequest(HttpServerExchange exchange) throws Exception {
@@ -37,7 +39,7 @@ public class SearchHandler implements HttpHandler {
         byte[] bytes;
         if (query != null) {
             String search = query.element();
-            ContentSearcher contentSearcher = new ContentSearcher(ConfigManager.getInstance().getWebServerConfig());
+            ContentSearcher contentSearcher = new ContentSearcher(config);
             List<DocumentationSearchResult> searchResults = contentSearcher.search(search);
             bytes = objectMapper.writeValueAsBytes(searchResults);
         } else {

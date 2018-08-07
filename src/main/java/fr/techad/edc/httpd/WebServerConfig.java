@@ -10,9 +10,13 @@ public class WebServerConfig {
     private String base;
     private String indexPath = null;
     private int transferMinSize = 100;
+    private boolean indexUrlEnabled = false;
+    private String docFolder = "doc";
+    private String helpFolder = "help";
 
 
     public WebServerConfig() {
+        super();
     }
 
     public String getBase() {
@@ -37,5 +41,29 @@ public class WebServerConfig {
 
     public void setTransferMinSize(int transferMinSize) {
         this.transferMinSize = transferMinSize;
+    }
+
+    public boolean isIndexUrlEnabled() {
+        return indexUrlEnabled;
+    }
+
+    public void setIndexUrlEnabled(boolean indexUrlEnabled) {
+        this.indexUrlEnabled = indexUrlEnabled;
+    }
+
+    public String getDocFolder() {
+        return docFolder;
+    }
+
+    public void setDocFolder(String docFolder) {
+        this.docFolder = docFolder;
+    }
+
+    public String getHelpFolder() {
+        return helpFolder;
+    }
+
+    public void setHelpFolder(String helpFolder) {
+        this.helpFolder = helpFolder;
     }
 }
