@@ -35,7 +35,6 @@ public class IndexerHandler implements HttpHandler {
         this.tokenutils=tokenutils;
     }
 
-    //TODO: Utiliser un optional plutôt que le string
     private Optional<HeaderValues> getTokenInHeader(HttpServerExchange exchange) {
         HeaderValues headerToken = exchange.getRequestHeaders().get("Edc-Token");//get token from Headers
         return Optional.ofNullable(headerToken); 
