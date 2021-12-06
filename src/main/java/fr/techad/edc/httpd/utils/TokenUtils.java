@@ -58,7 +58,6 @@ public class TokenUtils {
 
 		if (readPrivateKey().isEmpty()) {
 			this.privateKey = genSecretKey();
-			// TODO:créer le fichier
 			fileUtils.writeFile(keyPath, privateKey);
 		} else {
 			this.privateKey = readPrivateKey();
