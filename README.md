@@ -53,7 +53,12 @@ Use the web service : `/httpd/api/reindex`.
 This url can be called with your favorite browser (no mandatory to use curl)
 
 You have to put a token in the headers with the key "Edc-Token", the value can be find in `./token.info`
-Otherwise the request can't be done, and the server will return a forbidden status code
+Otherwise the request can't be done, and the server will return a forbidden status code.
+
+**Example**
+```Shell
+curl -H "Edc-Token: [token]" http://localhost:8088/httpd/api/reindex
+```
 ## Configuration
 
 ### Define the path
