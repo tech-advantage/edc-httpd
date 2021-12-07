@@ -37,6 +37,7 @@ public class EdcWebServer {
 			throw new IllegalArgumentException("The logger must be defined");
 		}
 		System.setProperty("org.jboss.logging.provider", logger);
+		TokenUtils.getInstance().createTokenFile();
 		Server.start();
 	}
 
@@ -67,6 +68,5 @@ public class EdcWebServer {
 
 	public static void main(String[] args) {
 		run();
-		TokenUtils.getInstance().createTokenFile();
 	}
 }

@@ -42,9 +42,11 @@ public class IndexerHandler implements HttpHandler {
     
     public void handleRequest(HttpServerExchange exchange) throws Exception {
     	String token = "";
-    	if(getTokenInHeader(exchange).isPresent()) token=getTokenInHeader(exchange).get().getFirst();
-        
-    	if(StringUtils.isNoneBlank(token) && this.tokenutils.validateToken(token)) {
+    	Optional<HeaderValues> headerValues = getTokenInHeader(exchange);
+		if (headerValues.isPresent())
+			token = headerValues.get().getFirst();
+
+		if (StringUtils.isNoneBlank(token) && this.tokenutils.validateToken(token)) {
     		LOGGER.debug("Request to reindex the content");
             IndexService indexService = new IndexService(config);
             indexService.indexContent();
@@ -53,8 +55,7 @@ public class IndexerHandler implements HttpHandler {
             exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
             exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
     	} else{
-            exchange.setStatusCode(StatusCodes.FORBIDDEN);
-            
+            exchange.setStatusCode(StatusCodes.FORBIDDEN); 
     	}
 
     }

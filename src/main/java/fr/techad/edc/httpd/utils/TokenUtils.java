@@ -37,15 +37,18 @@ public class TokenUtils {
 	}
 
 	public boolean validateToken(String token) {
-		try {
-			Algorithm algorithm = Algorithm.HMAC256(SECRET);
-			JWTVerifier verifier = JWT.require(algorithm).withClaim("private", this.privateKey).withIssuer(AUTH)
-					.build();
-			DecodedJWT decJwt = verifier.verify(token);
-			return true;
+		if(readPrivateKey().isEmpty())return false;
+		else {
+			try {
+				Algorithm algorithm = Algorithm.HMAC256(SECRET);
+				JWTVerifier verifier = JWT.require(algorithm).withClaim("private", this.privateKey).withIssuer(AUTH)
+						.build();
+				DecodedJWT decJwt = verifier.verify(token);
+				return true;
 
-		} catch (JWTVerificationException exception) {
-			return false;
+			} catch (JWTVerificationException exception) {
+				return false;
+			}
 		}
 	}
 
@@ -55,12 +58,12 @@ public class TokenUtils {
 
 	public void createTokenFile() {
 		String token = null;
-
-		if (readPrivateKey().isEmpty()) {
+		String tempKey = readPrivateKey();
+		if (tempKey.isEmpty()) {
 			this.privateKey = genSecretKey();
 			fileUtils.writeFile(keyPath, privateKey);
 		} else {
-			this.privateKey = readPrivateKey();
+			this.privateKey = tempKey;
 		}
 		try {
 			Algorithm algorithm = Algorithm.HMAC256(SECRET);
