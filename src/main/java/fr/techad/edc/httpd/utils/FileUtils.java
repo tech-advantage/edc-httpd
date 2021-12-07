@@ -48,7 +48,6 @@ public class FileUtils {
 		} catch (IOException e) {
 			LOGGER.error("Unable to found file", e);
 		}
-		System.out.println("Clée lue à la créeation du token :" + data);
 		return data;
 	}
 }
