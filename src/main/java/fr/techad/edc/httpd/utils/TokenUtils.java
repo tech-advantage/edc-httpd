@@ -32,7 +32,7 @@ public class TokenUtils {
 		return instance;
 	}
 
-	private String genSecretKey() {
+	String genSecretKey() {
 		return RandomStringUtils.randomAlphanumeric(24);
 	}
 
@@ -74,5 +74,4 @@ public class TokenUtils {
 
 		fileUtils.writeFile(tokenPath, token);
 	}
-
 }
