@@ -3,7 +3,6 @@ package fr.techad.edc.httpd;
 import com.networknt.config.Config;
 import com.networknt.server.Server;
 import fr.techad.edc.httpd.utils.ServerUtils;
-import fr.techad.edc.httpd.utils.TokenUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -37,7 +36,6 @@ public class EdcWebServer {
 			throw new IllegalArgumentException("The logger must be defined");
 		}
 		System.setProperty("org.jboss.logging.provider", logger);
-		TokenUtils.getInstance().createTokenFile();
 		Server.start();
 	}
 
