@@ -24,7 +24,6 @@ public class TokenUtils {
 
 	private TokenUtils() {
 		this.fileUtils = FileUtils.getInstance();
-		createTokenFile();
 	}
 
 	public static synchronized TokenUtils getInstance() {
@@ -57,7 +56,7 @@ public class TokenUtils {
 		return fileUtils.readFile(keyPath);
 	}
 
-	private void createTokenFile() {
+	public void createTokenFile() {
 		String token = null;
 		String tempKey = readPrivateKey();
 		if (tempKey.isEmpty()) {

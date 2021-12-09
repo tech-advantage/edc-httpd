@@ -33,6 +33,7 @@ public class IndexerHandler implements HttpHandler {
         this.objectMapper = objectMapper;
         this.config = config;
         this.tokenutils=tokenutils;
+        this.tokenutils.createTokenFile();
     }
 
     private Optional<HeaderValues> getTokenInHeader(HttpServerExchange exchange) {
