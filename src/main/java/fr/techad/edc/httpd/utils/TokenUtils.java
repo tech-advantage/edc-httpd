@@ -38,7 +38,7 @@ public class TokenUtils {
 	}
 
 	public boolean validateToken(String token) {
-		if(readPrivateKey().isEmpty())return false;
+		if(readPrivateKey().isEmpty()|| this.privateKey==null)return false;
 		else {
 			try {
 				Algorithm algorithm = Algorithm.HMAC256(SECRET);
