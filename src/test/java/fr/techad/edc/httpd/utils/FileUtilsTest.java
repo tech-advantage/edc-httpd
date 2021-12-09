@@ -33,8 +33,8 @@ public class FileUtilsTest {
 
 	@Test
 	public void fileWritingError() {
-		futil.writeFile("C:/test.txt", "some text");
-		File f = new File("C:/test.txt");
+		futil.writeFile("./fakeFolder/testFile.txt", "some text");
+		File f = new File("./fakeFolder/testFile.txt");
 		Assert.assertFalse(f.exists());
 	}
 	@Test
