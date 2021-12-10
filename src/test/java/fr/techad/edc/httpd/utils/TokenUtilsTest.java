@@ -1,18 +1,26 @@
 package fr.techad.edc.httpd.utils;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TokenUtilsTest {
 	private final String tokenPath = "./token.info";
+	private final String keyPath = "./private.key";
 	TokenUtils tutil = TokenUtils.getInstance();
+	
 	
 	@Before
 	public void createToken() {
 		tutil.createTokenFile();
 	}
-	
+	@After
+	public void removeFakeKey() {
+		FileUtils futil = FileUtils.getInstance();
+		if(futil.readFile(keyPath).equals("IamAfakePrivateK3Y"))futil.writeFile(keyPath, "");
+	}
 	
 	@Test
 	public void keyCreationLength() {
@@ -44,10 +52,9 @@ public class TokenUtilsTest {
 		FileUtils futil = FileUtils.getInstance();
 		String previousToken= futil.readFile(tokenPath);
 		Assert.assertTrue(tutil.validateToken(previousToken));
-		futil.writeFile("./private.Key", "IamAfakePrivateK3Y");
+		futil.writeFile(keyPath, "IamAfakePrivateK3Y");
 		tutil.createTokenFile();
 		Assert.assertFalse(tutil.validateToken(previousToken));
-		
 	}
 
 }

@@ -26,7 +26,8 @@ public class WebServerHandlerProvider implements HandlerProvider {
 
 	public HttpHandler getHandler() {
 		ConfigManager.getInstance().setWebServerConfig(config);
-
+		TokenUtils tokenUtil = TokenUtils.getInstance();
+		tokenUtil.createTokenFile();
 		IndexService indexService = new IndexService(config);
 		indexService.indexContent();
 		PathHandler pathHandler = new PathHandler(
@@ -36,7 +37,8 @@ public class WebServerHandlerProvider implements HandlerProvider {
 
 		if (config.isIndexUrlEnabled())
 			pathHandler.addExactPath("/httpd/api/reindex",
-					new IndexerHandler(Config.getInstance().getMapper(), config, TokenUtils.getInstance()));
+					new IndexerHandler(Config.getInstance().getMapper(), config, tokenUtil));
+
 
 		String docFolder = config.getDocFolder();
 		String helpFolder = config.getHelpFolder();
