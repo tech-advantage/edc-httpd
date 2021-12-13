@@ -12,66 +12,66 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 
 public class TokenUtils {
-	static final Logger LOGGER = LoggerFactory.getLogger(TokenUtils.class);
-	final String SECRET = "edc-server";
-	final String AUTH = "edc";
+  static final Logger LOGGER = LoggerFactory.getLogger(TokenUtils.class);
+  final String SECRET = "edc-server";
+  final String AUTH = "edc";
 
-	private static TokenUtils instance;
-	private String privateKey;
-	private FileUtils fileUtils;
-	private final String tokenPath = "./token.info";
-	private final String keyPath = "./private.key";
+  private static TokenUtils instance;
+  private String privateKey;
+  private FileUtils fileUtils;
+  private final String tokenPath = "./token.info";
+  private final String keyPath = "./private.key";
 
-	private TokenUtils() {
-		this.fileUtils = FileUtils.getInstance();
-	}
+  private TokenUtils() {
+    this.fileUtils = FileUtils.getInstance();
+  }
 
-	public static synchronized TokenUtils getInstance() {
-		if (instance == null)
-			instance = new TokenUtils();
-		return instance;
-	}
+  public static synchronized TokenUtils getInstance() {
+    if (instance == null)
+      instance = new TokenUtils();
+    return instance;
+  }
 
-	String genSecretKey() {
-		return RandomStringUtils.randomAlphanumeric(24);
-	}
+  String genSecretKey() {
+    return RandomStringUtils.randomAlphanumeric(24);
+  }
 
-	public boolean validateToken(String token) {
-		if(readPrivateKey().isEmpty()|| this.privateKey==null)return false;
-		else {
-			try {
-				Algorithm algorithm = Algorithm.HMAC256(SECRET);
-				JWTVerifier verifier = JWT.require(algorithm).withClaim("private", this.privateKey).withIssuer(AUTH)
-						.build();
-				DecodedJWT decJwt = verifier.verify(token);
-				return true;
+  public boolean validateToken(String token) {
+    if (readPrivateKey().isEmpty() || this.privateKey == null)
+      return false;
+    else {
+      try {
+        Algorithm algorithm = Algorithm.HMAC256(SECRET);
+        JWTVerifier verifier = JWT.require(algorithm).withClaim("private", this.privateKey).withIssuer(AUTH).build();
+        DecodedJWT decJwt = verifier.verify(token);
+        return true;
 
-			} catch (JWTVerificationException exception) {
-				return false;
-			}
-		}
-	}
+      } catch (JWTVerificationException exception) {
+        return false;
+      }
+    }
+  }
 
-	private String readPrivateKey() {
-		return fileUtils.readFile(keyPath);
-	}
+  private String readPrivateKey() {
+    return fileUtils.readFile(keyPath);
+  }
 
-	public void createTokenFile() {
-		String token = null;
-		String tempKey = readPrivateKey();
-		if (tempKey.isEmpty()) {
-			this.privateKey = genSecretKey();
-			fileUtils.writeFile(keyPath, privateKey);
-		} else {
-			this.privateKey = tempKey;
-		}
-		try {
-			Algorithm algorithm = Algorithm.HMAC256(SECRET);
-			token = JWT.create().withClaim("private", this.privateKey).withIssuer(AUTH).sign(algorithm);
-		} catch (JWTCreationException exception) {
-			LOGGER.error("Error during creating token", exception);
-		}
+  public void createTokenFile() {
+    String token = null;
+    String tempKey = readPrivateKey();
+    if (tempKey.isEmpty()) {
+      this.privateKey = genSecretKey();
+      fileUtils.writeFile(keyPath, privateKey);
+    } else {
+      this.privateKey = tempKey;
+    }
+    try {
+      Algorithm algorithm = Algorithm.HMAC256(SECRET);
+      token = JWT.create().withClaim("private", this.privateKey).withIssuer(AUTH).sign(algorithm);
+    } catch (JWTCreationException exception) {
+      LOGGER.error("Error during creating token", exception);
+    }
 
-		fileUtils.writeFile(tokenPath, token);
-	}
+    fileUtils.writeFile(tokenPath, token);
+  }
 }

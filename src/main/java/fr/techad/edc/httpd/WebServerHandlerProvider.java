@@ -19,36 +19,35 @@ import io.undertow.server.handlers.resource.FileResourceManager;
  * TECH ADVANTAGE All right reserved Created by cochon on 22/11/2017.
  */
 public class WebServerHandlerProvider implements HandlerProvider {
-	static final String CONFIG_NAME = "webserver";
+  static final String CONFIG_NAME = "webserver";
 
-	static WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
-			WebServerConfig.class);
+  static WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
+      WebServerConfig.class);
 
-	public HttpHandler getHandler() {
-		ConfigManager.getInstance().setWebServerConfig(config);
-		TokenUtils tokenUtil = TokenUtils.getInstance();
-		tokenUtil.createTokenFile();
-		IndexService indexService = new IndexService(config);
-		indexService.indexContent();
-		PathHandler pathHandler = new PathHandler(
-				resource(new FileResourceManager(new File(config.getBase()), config.getTransferMinSize())))
-						.addExactPath("/httpd/api/search", new SearchHandler(Config.getInstance().getMapper(), config))
-						.addExactPath("/httpd/api/text", new TextHandler());
+  public HttpHandler getHandler() {
+    ConfigManager.getInstance().setWebServerConfig(config);
+    TokenUtils tokenUtil = TokenUtils.getInstance();
+    tokenUtil.createTokenFile();
+    IndexService indexService = new IndexService(config);
+    indexService.indexContent();
+    PathHandler pathHandler = new PathHandler(
+        resource(new FileResourceManager(new File(config.getBase()), config.getTransferMinSize())))
+            .addExactPath("/httpd/api/search", new SearchHandler(Config.getInstance().getMapper(), config))
+            .addExactPath("/httpd/api/text", new TextHandler());
 
-		if (config.isIndexUrlEnabled())
-			pathHandler.addExactPath("/httpd/api/reindex",
-					new IndexerHandler(Config.getInstance().getMapper(), config, tokenUtil));
+    if (config.isIndexUrlEnabled())
+      pathHandler.addExactPath("/httpd/api/reindex",
+          new IndexerHandler(Config.getInstance().getMapper(), config, tokenUtil));
 
+    String docFolder = config.getDocFolder();
+    String helpFolder = config.getHelpFolder();
 
-		String docFolder = config.getDocFolder();
-		String helpFolder = config.getHelpFolder();
-
-		return Handlers.predicates(PredicatedHandlersParser.parse(
-				"not equals(%R, '/" + helpFolder + "') and " + "not equals(%R, '/" + helpFolder + "/') and "
-						+ "not equals(%R, '/" + helpFolder + "/index.html') and " + "not path-prefix('/" + docFolder
-						+ "', '/httpd') and " + "not path-prefix('/" + helpFolder + "/assets/') and "
-						+ "not path-prefix('/" + helpFolder + "/i18n/') and " + "not regex('/" + helpFolder
-						+ "/.*(js|css|png|woff|eot|ttf|svg|woff2|txt)$') -> rewrite('/" + helpFolder + "/index.html')",
-				WebServerHandlerProvider.class.getClassLoader()), pathHandler);
-	}
+    return Handlers.predicates(PredicatedHandlersParser.parse(
+        "not equals(%R, '/" + helpFolder + "') and " + "not equals(%R, '/" + helpFolder + "/') and "
+            + "not equals(%R, '/" + helpFolder + "/index.html') and " + "not path-prefix('/" + docFolder
+            + "', '/httpd') and " + "not path-prefix('/" + helpFolder + "/assets/') and " + "not path-prefix('/"
+            + helpFolder + "/i18n/') and " + "not regex('/" + helpFolder
+            + "/.*(js|css|png|woff|eot|ttf|svg|woff2|txt)$') -> rewrite('/" + helpFolder + "/index.html')",
+        WebServerHandlerProvider.class.getClassLoader()), pathHandler);
+  }
 }

@@ -7,54 +7,56 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TokenUtilsTest {
-	private final String tokenPath = "./token.info";
-	private final String keyPath = "./private.key";
-	TokenUtils tutil = TokenUtils.getInstance();
-	
-	
-	@Before
-	public void createToken() {
-		tutil.createTokenFile();
-	}
-	@After
-	public void removeFakeKey() {
-		FileUtils futil = FileUtils.getInstance();
-		if(futil.readFile(keyPath).equals("IamAfakePrivateK3Y"))futil.writeFile(keyPath, "");
-	}
-	
-	@Test
-	public void keyCreationLength() {
-		Assert.assertEquals(24, tutil.genSecretKey().length());
-	}
+  private final String tokenPath = "./token.info";
+  private final String keyPath = "./private.key";
+  TokenUtils tutil = TokenUtils.getInstance();
 
-	@Test
-	public void tokenValidationEmptyTest() {
-		Assert.assertThrows(NullPointerException.class, () -> tutil.validateToken(null));
-	}
+  @Before
+  public void createToken() {
+    tutil.createTokenFile();
+  }
 
-	@Test
-	public void tokenValidationBlankTest() {
-		Assert.assertFalse(tutil.validateToken(""));
-	}
+  @After
+  public void removeFakeKey() {
+    FileUtils futil = FileUtils.getInstance();
+    if (futil.readFile(keyPath).equals("IamAfakePrivateK3Y"))
+      futil.writeFile(keyPath, "");
+  }
 
-	@Test
-	public void tokenValidationSucess() {
-		FileUtils futil = FileUtils.getInstance();
-		Assert.assertTrue(tutil.validateToken(futil.readFile(tokenPath)));
-	}
+  @Test
+  public void keyCreationLength() {
+    Assert.assertEquals(24, tutil.genSecretKey().length());
+  }
 
-	@Test
-	public void tokenValidationFailure() {
-		Assert.assertFalse(tutil.validateToken("a fake token"));
-	}
-	@Test
-	public void tokenValidationChangedFailure() {
-		FileUtils futil = FileUtils.getInstance();
-		String previousToken= futil.readFile(tokenPath);
-		Assert.assertTrue(tutil.validateToken(previousToken));
-		futil.writeFile(keyPath, "IamAfakePrivateK3Y");
-		tutil.createTokenFile();
-		Assert.assertFalse(tutil.validateToken(previousToken));
-	}
+  @Test
+  public void tokenValidationEmptyTest() {
+    Assert.assertThrows(NullPointerException.class, () -> tutil.validateToken(null));
+  }
+
+  @Test
+  public void tokenValidationBlankTest() {
+    Assert.assertFalse(tutil.validateToken(""));
+  }
+
+  @Test
+  public void tokenValidationSucess() {
+    FileUtils futil = FileUtils.getInstance();
+    Assert.assertTrue(tutil.validateToken(futil.readFile(tokenPath)));
+  }
+
+  @Test
+  public void tokenValidationFailure() {
+    Assert.assertFalse(tutil.validateToken("a fake token"));
+  }
+
+  @Test
+  public void tokenValidationChangedFailure() {
+    FileUtils futil = FileUtils.getInstance();
+    String previousToken = futil.readFile(tokenPath);
+    Assert.assertTrue(tutil.validateToken(previousToken));
+    futil.writeFile(keyPath, "IamAfakePrivateK3Y");
+    tutil.createTokenFile();
+    Assert.assertFalse(tutil.validateToken(previousToken));
+  }
 
 }

@@ -8,6 +8,7 @@ import org.junit.Test;
 public class FileUtilsTest {
 	FileUtils futil = FileUtils.getInstance();
 	final String testFilePath = "./src/test/resources/testfile.txt";
+
 	@Test
 	public void fileReadingSucess() {
 		Assert.assertEquals("edc-token-httpd-java", futil.readFile(testFilePath));
@@ -37,11 +38,12 @@ public class FileUtilsTest {
 		File f = new File("./fakeFolder/testFile.txt");
 		Assert.assertFalse(f.exists());
 	}
+
 	@Test
 	public void fileWritingOverwrite() {
 		futil.writeFile(testFilePath, "avaj-dptth-nekot-cde");
-		Assert.assertEquals("avaj-dptth-nekot-cde",futil.readFile(testFilePath));
+		Assert.assertEquals("avaj-dptth-nekot-cde", futil.readFile(testFilePath));
 		futil.writeFile(testFilePath, "edc-token-httpd-java");
-		Assert.assertEquals("edc-token-httpd-java",futil.readFile(testFilePath));
+		Assert.assertEquals("edc-token-httpd-java", futil.readFile(testFilePath));
 	}
 }
