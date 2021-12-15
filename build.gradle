@@ -19,16 +19,17 @@ repositories {
 
 dependencies {
     // light-4j
-    compile group: 'com.networknt', name: 'server', version: '1.5.13'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
-    compile group: 'org.apache.lucene', name: 'lucene-core', version: '7.3.1'
-    compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '7.3.1'
-    compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
+    implementation 'com.networknt:server:2.0.32' 
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.apache.lucene:lucene-core:7.3.1'
+    implementation 'org.apache.lucene:lucene-queryparser:7.3.1'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'com.auth0:java-jwt:3.18.2'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-all:1.9.5'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -53,7 +54,7 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
-
+/*
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -120,6 +121,7 @@ publishing {
             }
         }
     }
+    /*
     repositories {
         maven {
             url isReleaseVersion ? "https://oss.sonatype.org/service/local/staging/deploy/maven2" : "https://oss.sonatype.org/content/repositories/snapshots"
@@ -129,7 +131,9 @@ publishing {
             }
         }
     }
+    
 }
+
 
 signing {
     required { signArtefact && gradle.taskGraph.hasTask("publishing") }
@@ -150,7 +154,7 @@ model {
         dependsOn(project.tasks.build)
     }
 }
-
+*/
 task install(dependsOn: publishToMavenLocal) {
     group = 'Publishing'
     description = 'Installs artifacts to local Maven repository'
