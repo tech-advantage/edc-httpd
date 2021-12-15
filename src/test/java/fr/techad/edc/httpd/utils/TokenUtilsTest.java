@@ -29,11 +29,6 @@ public class TokenUtilsTest {
   }
 
   @Test
-  public void tokenValidationEmptyTest() {
-    Assert.assertThrows(NullPointerException.class, () -> tutil.validateToken(null));
-  }
-
-  @Test
   public void tokenValidationBlankTest() {
     Assert.assertFalse(tutil.validateToken(""));
   }
