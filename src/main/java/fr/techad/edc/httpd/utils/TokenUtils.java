@@ -1,6 +1,12 @@
 package fr.techad.edc.httpd.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +17,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 
+import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderValues;
+
 public class TokenUtils {
   static final Logger LOGGER = LoggerFactory.getLogger(TokenUtils.class);
   final String SECRET = "edc-server";
@@ -18,12 +27,10 @@ public class TokenUtils {
 
   private static TokenUtils instance;
   private String privateKey;
-  private FileUtils fileUtils;
   private final String tokenPath = "./token.info";
   private final String keyPath = "./private.key";
 
   private TokenUtils() {
-    this.fileUtils = FileUtils.getInstance();
   }
 
   public static synchronized TokenUtils getInstance() {
@@ -32,11 +39,21 @@ public class TokenUtils {
     return instance;
   }
 
+  public boolean getTokenInHeader(HttpServerExchange exchange) throws IOException {
+    Optional<HeaderValues> headerValues = Optional.ofNullable(exchange.getRequestHeaders().get("Edc-Token"));
+    String token;
+    if (headerValues.isPresent())
+      token = headerValues.get().getFirst();
+    else
+      token = "";
+    return StringUtils.isNoneBlank(token) && validateToken(token);
+  }
+
   String genSecretKey() {
     return RandomStringUtils.randomAlphanumeric(24);
   }
 
-  public boolean validateToken(String token) {
+  public boolean validateToken(String token) throws IOException {
     if (readPrivateKey().isEmpty() || this.privateKey == null)
       return false;
     else {
@@ -45,23 +62,22 @@ public class TokenUtils {
         JWTVerifier verifier = JWT.require(algorithm).withClaim("private", this.privateKey).withIssuer(AUTH).build();
         DecodedJWT decJwt = verifier.verify(token);
         return true;
-
       } catch (JWTVerificationException exception) {
         return false;
       }
     }
   }
 
-  private String readPrivateKey() {
-    return fileUtils.readFile(keyPath);
+  private String readPrivateKey() throws IOException {
+    return FileUtils.readFileToString(new File(keyPath), "UTF-8");
   }
 
-  public void createTokenFile() {
+  public void createTokenFile() throws IOException {
     String token = null;
     String tempKey = readPrivateKey();
     if (tempKey.isEmpty()) {
       this.privateKey = genSecretKey();
-      fileUtils.writeFile(keyPath, privateKey);
+      FileUtils.writeStringToFile(new File(keyPath), privateKey, "UTF-8");
     } else {
       this.privateKey = tempKey;
     }
@@ -71,7 +87,6 @@ public class TokenUtils {
     } catch (JWTCreationException exception) {
       LOGGER.error("Error during creating token", exception);
     }
-
-    fileUtils.writeFile(tokenPath, token);
+    FileUtils.writeStringToFile(new File(tokenPath), token, "UTF-8");
   }
 }

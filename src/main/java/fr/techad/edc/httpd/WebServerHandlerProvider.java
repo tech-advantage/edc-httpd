@@ -3,6 +3,10 @@ package fr.techad.edc.httpd;
 import static io.undertow.Handlers.resource;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.networknt.config.Config;
 import com.networknt.handler.HandlerProvider;
@@ -20,6 +24,7 @@ import io.undertow.server.handlers.resource.FileResourceManager;
  */
 public class WebServerHandlerProvider implements HandlerProvider {
   static final String CONFIG_NAME = "webserver";
+  static final Logger LOGGER = LoggerFactory.getLogger(WebServerHandlerProvider.class);
 
   static WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
       WebServerConfig.class);
@@ -27,18 +32,22 @@ public class WebServerHandlerProvider implements HandlerProvider {
   public HttpHandler getHandler() {
     ConfigManager.getInstance().setWebServerConfig(config);
     TokenUtils tokenUtil = TokenUtils.getInstance();
-    tokenUtil.createTokenFile();
+    try {
+      tokenUtil.createTokenFile();
+    } catch (IOException e) {
+      LOGGER.error("Unable to create token File",e);
+    }
     IndexService indexService = new IndexService(config);
     indexService.indexContent();
     PathHandler pathHandler = new PathHandler(
-        resource(new FileResourceManager(new File(config.getBase()), config.getTransferMinSize())))
+        resource(new FileResourceManager(new File(config.getBase()), config.getTransferMaxSize())))
             .addExactPath("/httpd/api/search", new SearchHandler(Config.getInstance().getMapper(), config))
             .addExactPath("/httpd/api/text", new TextHandler());
 
     if (config.isIndexUrlEnabled())
       pathHandler.addExactPath("/httpd/api/reindex",
           new IndexerHandler(Config.getInstance().getMapper(), config, tokenUtil));
-
+    pathHandler.addExactPath("httpd/api/upload", new UploadHandler(Config.getInstance().getMapper(), config, tokenUtil));
     String docFolder = config.getDocFolder();
     String helpFolder = config.getHelpFolder();
 

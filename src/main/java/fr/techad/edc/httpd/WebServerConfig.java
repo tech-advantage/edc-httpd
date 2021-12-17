@@ -1,5 +1,7 @@
 package fr.techad.edc.httpd;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 /**
  * TECH ADVANTAGE
  * All right reserved
@@ -9,7 +11,7 @@ public class WebServerConfig {
 
     private String base;
     private String indexPath = null;
-    private int transferMinSize = 100;
+    private long transferMaxSize = (long) 20E3;
     private boolean indexUrlEnabled = false;
     private String docFolder = "doc";
     private String helpFolder = "help";
@@ -35,12 +37,12 @@ public class WebServerConfig {
         this.indexPath = indexPath;
     }
 
-    public int getTransferMinSize() {
-        return transferMinSize;
+    public long getTransferMaxSize() {
+        return transferMaxSize;
     }
 
-    public void setTransferMinSize(int transferMinSize) {
-        this.transferMinSize = transferMinSize;
+    public void setTransferMaxSize(long transferMaxSize) {
+        this.transferMaxSize = transferMaxSize;
     }
 
     public boolean isIndexUrlEnabled() {
@@ -66,4 +68,5 @@ public class WebServerConfig {
     public void setHelpFolder(String helpFolder) {
         this.helpFolder = helpFolder;
     }
+
 }

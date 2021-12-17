@@ -33,18 +33,9 @@ public class IndexerHandler implements HttpHandler {
     this.tokenutils = tokenutils;
   }
 
-  private Optional<HeaderValues> getTokenInHeader(HttpServerExchange exchange) {
-    HeaderValues headerToken = exchange.getRequestHeaders().get("Edc-Token");// get token from Headers
-    return Optional.ofNullable(headerToken);
-  }
 
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    String token = "";
-    Optional<HeaderValues> headerValues = getTokenInHeader(exchange);
-    if (headerValues.isPresent())
-      token = headerValues.get().getFirst();
-
-    if (StringUtils.isNoneBlank(token) && this.tokenutils.validateToken(token)) {
+    if (tokenutils.getTokenInHeader(exchange)) {
       LOGGER.debug("Request to reindex the content");
       IndexService indexService = new IndexService(config);
       indexService.indexContent();
@@ -53,7 +44,7 @@ public class IndexerHandler implements HttpHandler {
       exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
       exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
     } else {
-      exchange.setStatusCode(StatusCodes.FORBIDDEN);
+      exchange.setStatusCode(StatusCodes.UNAUTHORIZED);
     }
 
   }
