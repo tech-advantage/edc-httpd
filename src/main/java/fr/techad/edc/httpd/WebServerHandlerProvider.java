@@ -40,7 +40,7 @@ public class WebServerHandlerProvider implements HandlerProvider {
     IndexService indexService = new IndexService(config);
     indexService.indexContent();
     PathHandler pathHandler = new PathHandler(
-        resource(new FileResourceManager(new File(config.getBase()), config.getTransferMaxSize())))
+        resource(new FileResourceManager(new File(config.getBase()), config.getTransferMinSize())))
             .addExactPath("/httpd/api/search", new SearchHandler(Config.getInstance().getMapper(), config))
             .addExactPath("/httpd/api/text", new TextHandler());
 

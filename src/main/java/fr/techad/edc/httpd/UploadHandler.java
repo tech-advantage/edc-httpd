@@ -41,7 +41,7 @@ public class UploadHandler implements HttpHandler {
     if (formDataParser != null) {
       exchange.dispatch((e) -> {
         exchange.startBlocking();
-        exchange.setMaxEntitySize(config.getTransferMaxSize());// 2GB of request size
+        exchange.setMaxEntitySize(config.getRequestMaxSize());// 2GB of request size
         if (tokenutils.getTokenInHeader(exchange)) {
           LOGGER.debug("Request to upload a file");
           FormData formData = formDataParser.parseBlocking();
