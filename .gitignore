@@ -31,3 +31,10 @@ out
 hs_err_pid*
 /deploy.bat
 /install.bat
+/bin/
+.settings/org.eclipse.buildship.core.prefs
+.settings/org.eclipse.jdt.core.prefs
+private.key
+token.info
+.classpath
+.project
