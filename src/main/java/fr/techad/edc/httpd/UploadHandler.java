@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +34,15 @@ public class UploadHandler implements HttpHandler {
   }
 
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-
     Builder builder = FormParserFactory.builder();
     final FormDataParser formDataParser = builder.build().createParser(exchange);
-    if (formDataParser != null) {
+    if (exchange.getConnection() != null)
+      exchange.setMaxEntitySize(config.getRequestMaxSize());
+    // If not present Test can't be done
+    if (tokenutils.getTokenInHeader(exchange)) {
       exchange.dispatch((e) -> {
         exchange.startBlocking();
-        exchange.setMaxEntitySize(config.getRequestMaxSize());// 2GB of request size
-        if (tokenutils.getTokenInHeader(exchange)) {
+        if (formDataParser != null) {
           LOGGER.debug("Request to upload a file");
           FormData formData = formDataParser.parseBlocking();
           for (String data : formData) {
@@ -52,26 +52,27 @@ public class UploadHandler implements HttpHandler {
                 UploadService service = new UploadService(config);
                 String name = formValue.getFileName();
                 Thread thread = new Thread(() -> {
-                  service.processing(uploadedFile, name);
+                  service.processing(name);
                 });
-                if (FilenameUtils.getExtension(name).equals("zip")) {
-                  service.saveFile(uploadedFile, name);
+                if (service.saveFile(uploadedFile, name)) {
                   thread.start();
                 } else
                   exchange.setStatusCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
               }
             }
           }
+
           formDataParser.close();
+
           byte[] bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("status", "Upload Complete"));
           exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
           exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
         } else {
-          exchange.setStatusCode(StatusCodes.UNAUTHORIZED);
+          exchange.setStatusCode(StatusCodes.BAD_REQUEST);
         }
       });
     } else {
-      exchange.setStatusCode(StatusCodes.BAD_REQUEST);
+      exchange.setStatusCode(StatusCodes.UNAUTHORIZED);
     }
 
   }
