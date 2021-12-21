@@ -1,4 +1,4 @@
 singletons:
 # HandlerProvider implementation
-- com.networknt.server.HandlerProvider:
+- com.networknt.handler.HandlerProvider:
   - fr.techad.edc.httpd.WebServerHandlerProvider
