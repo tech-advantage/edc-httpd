@@ -39,7 +39,7 @@ public class UploadHandler implements HttpHandler {
     if (exchange.getConnection() != null)
       exchange.setMaxEntitySize(config.getRequestMaxSize());
     // If not present Test can't be done
-    if (tokenutils.getTokenInHeader(exchange)) {
+    if (tokenutils.getAndVerifyToken(exchange)) {
       exchange.dispatch((e) -> {
         exchange.startBlocking();
         if (formDataParser != null) {
@@ -54,19 +54,18 @@ public class UploadHandler implements HttpHandler {
                 Thread thread = new Thread(() -> {
                   service.processing(name);
                 });
-                if (service.saveFile(uploadedFile, name)) {
+                if (service.saveZipFromHeader(uploadedFile, name)) {
                   thread.start();
+
+                  byte[] bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("status", "Upload Complete"));
+                  exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+                  exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
                 } else
                   exchange.setStatusCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
               }
             }
           }
-
           formDataParser.close();
-
-          byte[] bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("status", "Upload Complete"));
-          exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
-          exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
         } else {
           exchange.setStatusCode(StatusCodes.BAD_REQUEST);
         }

@@ -2,6 +2,7 @@ package fr.techad.edc.httpd.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
@@ -39,7 +40,7 @@ public class TokenUtils {
     return instance;
   }
 
-  public boolean getTokenInHeader(HttpServerExchange exchange) throws IOException {
+  public boolean getAndVerifyToken(HttpServerExchange exchange) throws IOException {
     Optional<HeaderValues> headerValues = Optional.ofNullable(exchange.getRequestHeaders().get("Edc-Token"));
     String token;
     if (headerValues.isPresent())
@@ -68,8 +69,12 @@ public class TokenUtils {
     }
   }
 
-  private String readPrivateKey() throws IOException {
-    return FileUtils.readFileToString(new File(keyPath), "UTF-8");
+  private String readPrivateKey() {
+    try {
+      return FileUtils.readFileToString(new File(keyPath), StandardCharsets.UTF_8.name());
+    } catch (Exception e) {
+      return "";
+    } 
   }
 
   public void createTokenFile() throws IOException {
@@ -77,7 +82,7 @@ public class TokenUtils {
     String tempKey = readPrivateKey();
     if (tempKey.isEmpty()) {
       this.privateKey = genSecretKey();
-      FileUtils.writeStringToFile(new File(keyPath), privateKey, "UTF-8");
+      FileUtils.writeStringToFile(new File(keyPath), privateKey, StandardCharsets.UTF_8.name());
     } else {
       this.privateKey = tempKey;
     }
@@ -87,6 +92,6 @@ public class TokenUtils {
     } catch (JWTCreationException exception) {
       LOGGER.error("Error during creating token", exception);
     }
-    FileUtils.writeStringToFile(new File(tokenPath), token, "UTF-8");
+    FileUtils.writeStringToFile(new File(tokenPath), token, StandardCharsets.UTF_8.name());
   }
 }
