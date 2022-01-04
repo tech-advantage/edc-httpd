@@ -55,7 +55,7 @@ public class UploadHandler implements HttpHandler {
                 Thread thread = new Thread(() -> {
                   service.processing(name);
                 });
-                if (service.saveZipFromHeader(uploadedFile, name)) {
+                if (service.saveZip(uploadedFile, name)) {
                   thread.start();
 
                   byte[] bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("status", "Upload Complete"));
