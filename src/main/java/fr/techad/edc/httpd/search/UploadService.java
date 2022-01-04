@@ -37,7 +37,7 @@ public class UploadService {
   }
 
   // Non multi-thread
-  public boolean saveZip(File toSave, String name) throws IOException {
+  public boolean moveZip(File toSave, String name) throws IOException {
     if (FilenameUtils.getExtension(name).equals("zip")) {
       FileUtils.copyFile(toSave, new File(tempdirPath + "/" + name));
       LOGGER.info("Saving File: {}", name);
