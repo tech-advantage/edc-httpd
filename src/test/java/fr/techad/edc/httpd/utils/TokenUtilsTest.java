@@ -1,5 +1,9 @@
 package fr.techad.edc.httpd.utils;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,15 +16,14 @@ public class TokenUtilsTest {
   TokenUtils tutil = TokenUtils.getInstance();
 
   @Before
-  public void createToken() {
+  public void createToken() throws IOException {
     tutil.createTokenFile();
   }
 
   @After
-  public void removeFakeKey() {
-    FileUtils futil = FileUtils.getInstance();
-    if (futil.readFile(keyPath).equals("IamAfakePrivateK3Y"))
-      futil.writeFile(keyPath, "");
+  public void removeFakeKey() throws IOException {
+    if (FileUtils.readFileToString(new File(keyPath),"UTF-8").equals("IamAfakePrivateK3Y"))
+      FileUtils.writeStringToFile(new File(keyPath), "","UTF-8");;
   }
 
   @Test
@@ -29,27 +32,25 @@ public class TokenUtilsTest {
   }
 
   @Test
-  public void tokenValidationBlankTest() {
+  public void tokenValidationBlankTest() throws IOException {
     Assert.assertFalse(tutil.validateToken(""));
   }
 
   @Test
-  public void tokenValidationSucess() {
-    FileUtils futil = FileUtils.getInstance();
-    Assert.assertTrue(tutil.validateToken(futil.readFile(tokenPath)));
+  public void tokenValidationSucess() throws IOException {
+    Assert.assertTrue(tutil.validateToken(FileUtils.readFileToString(new File(tokenPath),"UTF-8")));
   }
 
   @Test
-  public void tokenValidationFailure() {
+  public void tokenValidationFailure() throws IOException {
     Assert.assertFalse(tutil.validateToken("a fake token"));
   }
 
   @Test
-  public void tokenValidationChangedFailure() {
-    FileUtils futil = FileUtils.getInstance();
-    String previousToken = futil.readFile(tokenPath);
+  public void tokenValidationChangedFailure() throws IOException {
+    String previousToken = FileUtils.readFileToString(new File(tokenPath),"UTF-8");
     Assert.assertTrue(tutil.validateToken(previousToken));
-    futil.writeFile(keyPath, "IamAfakePrivateK3Y");
+    FileUtils.writeStringToFile(new File(keyPath), "IamAfakePrivateK3Y","UTF-8");
     tutil.createTokenFile();
     Assert.assertFalse(tutil.validateToken(previousToken));
   }

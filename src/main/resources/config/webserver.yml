@@ -1,4 +1,5 @@
-base: C:\\edc\\demo-2
-transferMinSize: 100
+base: C:/DEV/
 indexUrlEnabled: true
+transferMinSize: 100
+requestMaxSize: 2GB
 # indexPath: /html/.edc

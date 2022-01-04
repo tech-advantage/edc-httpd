@@ -50,14 +50,24 @@ The query `/httpd/api/search?query=http*` returns help documentations which cont
 ## How can I reindex the content?
 
 Use the web service : `/httpd/api/reindex`.
-This url can be called with your favorite browser (no mandatory to use curl)
 
 You have to put a token in the headers with the key "Edc-Token", the value can be find in `./token.info`
-Otherwise the request can't be done, and the server will return a forbidden status code.
+Otherwise the request can't be done, and the server will return a unauthorized status code.
 
 **Example**
 ```Shell
 curl -H "Edc-Token: [token]" http://localhost:8088/httpd/api/reindex
+```
+## How can I upload a new doc?
+Use the web service : `/httpd/api/upload`.
+
+You have to put a token in the headers with the key "Edc-Token", the value can be find in `./token.info`
+Otherwise the request can't be done, and the server will return a unauthorized status code.
+Then you put your file like the example below.
+
+**Example**
+```Shell
+   curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload
 ```
 ## Configuration
 
