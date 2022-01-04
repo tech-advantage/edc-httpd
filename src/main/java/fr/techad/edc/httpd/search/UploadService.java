@@ -2,6 +2,7 @@ package fr.techad.edc.httpd.search;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -14,7 +15,7 @@ import net.lingala.zip4j.ZipFile;
 public class UploadService {
   private static final Logger LOGGER = LoggerFactory.getLogger(UploadService.class);
   private final WebServerConfig config;
-  private final String tempdirPath = System.getProperty("java.io.tmpdir");
+  private final String tempdirPath = FileUtils.getTempDirectoryPath();
 
   public UploadService(WebServerConfig config) {
     this.config = config;
@@ -22,8 +23,10 @@ public class UploadService {
 
   public boolean processing(String name) {
     try {
-      unzip(tempdirPath + "/" + name, tempdirPath + "/test_unzip");
+      String tmpdir = Files.createTempDirectory("unzip").toFile().getAbsolutePath();
+      unzip(tempdirPath + "/" + name, tmpdir);
       File zip = new File(tempdirPath + "/" + name);
+
       LOGGER.info("Processing finished");
       return zip.delete();
     } catch (IOException e) {
@@ -34,7 +37,7 @@ public class UploadService {
   }
 
   // Non multi-thread
-  public boolean saveFile(File toSave, String name) throws IOException {
+  public boolean saveZipFromHeader(File toSave, String name) throws IOException {
     if (FilenameUtils.getExtension(name).equals("zip")) {
       FileUtils.copyFile(toSave, new File(tempdirPath + "/" + name));
       LOGGER.info("Saving File: {}", name);
@@ -50,13 +53,4 @@ public class UploadService {
     toextract.close();
   }
 
-  private void replaceOldDoc(String unzipPath) throws IOException {
-    // TODO supprimer l'ancienne doc puis copier la nouvelle
-    LOGGER.info("Delete old Doc...");
-    String docPath = config.getBase() + "/" + config.getDocFolder() + "/";
-    FileUtils.deleteDirectory(new File(docPath));
-    LOGGER.info("Copying new Doc...");
-    FileUtils.copyDirectory(new File(unzipPath + "/"), new File(docPath));
-    FileUtils.deleteDirectory(new File(unzipPath));
-  }
 }

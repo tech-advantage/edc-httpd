@@ -24,21 +24,21 @@ public class UploadServiceTest {
   @BeforeClass
   public static void initTestFile() throws IOException {
     File testZip = new File("./src/test/resources/testingZip.zip");
-    service.saveFile(testZip, testZip.getName());
+    service.saveZipFromHeader(testZip, testZip.getName());
     File testFile = new File("./src/test/resources/testFile.txt");
-    service.saveFile(testFile, "." + testZip.getName());
+    service.saveZipFromHeader(testFile, "." + testZip.getName());
   }
 
   @Test
   public void saveSucess() throws IOException {
     File testZip = new File("./src/test/resources/testingZip.zip");
-    Assert.assertTrue(service.saveFile(testZip, testZip.getName()));
+    Assert.assertTrue(service.saveZipFromHeader(testZip, testZip.getName()));
   }
 
   @Test
   public void saveFailure() throws IOException {
     File testFile = new File("./src/test/resources/testFile.txt");
-    Assert.assertFalse(service.saveFile(testFile, testFile.getName()));
+    Assert.assertFalse(service.saveZipFromHeader(testFile, testFile.getName()));
   }
 
   @Test

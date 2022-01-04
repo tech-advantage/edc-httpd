@@ -35,7 +35,7 @@ public class IndexerHandler implements HttpHandler {
 
 
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    if (tokenutils.getAndVerifyToken(exchange)) {
+    if (tokenutils.verifyToken(exchange)) {
       LOGGER.debug("Request to reindex the content");
       IndexService indexService = new IndexService(config);
       indexService.indexContent();

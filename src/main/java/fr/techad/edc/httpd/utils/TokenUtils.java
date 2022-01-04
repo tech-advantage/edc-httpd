@@ -40,13 +40,15 @@ public class TokenUtils {
     return instance;
   }
 
-  public boolean getAndVerifyToken(HttpServerExchange exchange) throws IOException {
+  public boolean verifyToken(HttpServerExchange exchange) throws IOException {
     Optional<HeaderValues> headerValues = Optional.ofNullable(exchange.getRequestHeaders().get("Edc-Token"));
     String token;
-    if (headerValues.isPresent())
+    if (headerValues.isPresent()) {
       token = headerValues.get().getFirst();
-    else
+    }
+    else {
       token = "";
+    }
     return StringUtils.isNoneBlank(token) && validateToken(token);
   }
 

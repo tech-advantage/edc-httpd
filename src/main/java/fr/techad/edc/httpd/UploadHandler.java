@@ -36,10 +36,11 @@ public class UploadHandler implements HttpHandler {
   public void handleRequest(HttpServerExchange exchange) throws Exception {
     Builder builder = FormParserFactory.builder();
     final FormDataParser formDataParser = builder.build().createParser(exchange);
-    if (exchange.getConnection() != null)
+    if (exchange.getConnection() != null) {
       exchange.setMaxEntitySize(config.getRequestMaxSize());
+    }
     // If not present Test can't be done
-    if (tokenutils.getAndVerifyToken(exchange)) {
+    if (tokenutils.verifyToken(exchange)) {
       exchange.dispatch((e) -> {
         exchange.startBlocking();
         if (formDataParser != null) {
