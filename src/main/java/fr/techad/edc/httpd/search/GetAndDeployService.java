@@ -75,12 +75,7 @@ public class GetAndDeployService {
     FileUtils.deleteDirectory(unziped);
     return false;
   }
-
-  private void synchronize(File directory, String docPath, boolean override) throws IOException {
-    String[] extensions = { "bmp", "dib", "eps", "ico", "webp", "jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "jp2",
-        "j2k", "jpf", "jpx", "jpm", "mj2", "tiff", "tif", "json", "svg", "svgz", "pdf", "css", "html", "png", "txt",
-        "gif","ai" };
-    List<File> filestoCopy = (List<File>) FileUtils.listFiles(directory, extensions, true);
+  private void cleanPreviousDoc(File directory, String docPath,boolean override) throws IOException {
     List<File> directoriestoCopy = (List<File>) FileUtils.listFilesAndDirs(directory,
         new NotFileFilter(TrueFileFilter.INSTANCE), DirectoryFileFilter.DIRECTORY);
     List<File> directoriestoClean = (List<File>) FileUtils.listFilesAndDirs(new File(docPath),
@@ -107,6 +102,13 @@ public class GetAndDeployService {
         }
       }
     }
+  }
+   private void synchronize(File directory, String docPath, boolean override) throws IOException {
+    String[] extensions = { "bmp", "dib", "eps", "ico", "webp", "jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "jp2",
+        "j2k", "jpf", "jpx", "jpm", "mj2", "tiff", "tif", "json", "svg", "svgz", "pdf", "css", "html", "png", "txt",
+        "gif","ai" };
+    List<File> filestoCopy = (List<File>) FileUtils.listFiles(directory, extensions, true);
+    cleanPreviousDoc(directory, docPath, override);
     for (File f : filestoCopy) {
       String path1 = f.getPath();
       String[] split1 = path1.split("doc");
