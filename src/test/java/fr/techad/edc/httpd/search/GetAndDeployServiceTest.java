@@ -90,13 +90,6 @@ public class GetAndDeployServiceTest {
         FileUtils.listFilesAndDirs(docDir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size() - 1);
   }
 
-//
-//  @Test
-//  public void processingNonExist() {
-//    Assert.assertFalse(service.processing("./ghost.zip", true));
-//    Assert.assertTrue(areDirsEqual(new File(docPath), new File("./src/test/resources/docTest")));
-//  }
-//
   @Test
   public void processingBadStructure() throws IOException {
     File docDir = new File(docPath);
