@@ -26,20 +26,25 @@ public class GetAndDeployService {
   }
 
   public boolean processing(String name, boolean override) {
+    File zip = new File(tempdirPath + "/" + name);
+    String tmpdir = "" ;
     try {
-      String tmpdir = Files.createTempDirectory("unzip").toFile().getAbsolutePath();
+      tmpdir= Files.createTempDirectory("unzip").toFile().getAbsolutePath();
       unzip(tempdirPath + "/" + name, tmpdir + "/doc");
-      File zip = new File(tempdirPath + "/" + name);
       if(replaceOldDoc(new File(tmpdir), override)) {
-        LOGGER.debug("Request to reindex the content");
-        IndexService indexService = new IndexService(config);
-        indexService.indexContent();
         LOGGER.info("Processing finished");
         return zip.delete();
-      };
+      }
+      zip.delete();
       return false;
     } catch (IOException e) {
-      LOGGER.error("Error with files", e);
+      LOGGER.error("Error in processing operations", e);
+      zip.delete();
+      try {
+        FileUtils.deleteDirectory(new File(tmpdir));
+      } catch (IOException e1) {
+        LOGGER.error("Error in delete unzipped directory", e1);
+      }
       return false;
     }
   }
@@ -86,7 +91,7 @@ public class GetAndDeployService {
         String path1 = directoriestoCopy.get(i).getPath();
         String path2 = directoriestoClean.get(j).getPath();
         String[] split1 = path1.split("doc");
-        String[] split2 = path2.split("doc");
+        String[] split2 = path2.split(config.getDocFolder());
         path1 = split1[1];
         path2 = split2[1];
         if (override) {
@@ -108,7 +113,9 @@ public class GetAndDeployService {
         "j2k", "jpf", "jpx", "jpm", "mj2", "tiff", "tif", "json", "svg", "svgz", "pdf", "css", "html", "png", "txt",
         "gif","ai" };
     List<File> filestoCopy = (List<File>) FileUtils.listFiles(directory, extensions, true);
-    cleanPreviousDoc(directory, docPath, override);
+    if(new File(docPath).exists()) {
+      cleanPreviousDoc(directory, docPath, override);
+    }
     for (File f : filestoCopy) {
       String path1 = f.getPath();
       String[] split1 = path1.split("doc");

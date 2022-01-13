@@ -38,3 +38,5 @@ private.key
 token.info
 .classpath
 .project
+
+!/src/test/resources/*.zip

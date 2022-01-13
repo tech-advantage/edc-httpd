@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.techad.edc.httpd.search.GetAndDeployService;
+import fr.techad.edc.httpd.search.IndexService;
 import fr.techad.edc.httpd.utils.TokenUtils;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -55,7 +56,13 @@ public class UploadHandler implements HttpHandler {
                 GetAndDeployService service = new GetAndDeployService(config);
                 String name = formValue.getFileName();
                 Thread thread = new Thread(() -> {
-                  service.processing(name,override(exchange));
+                  boolean sucess = service.processing(name, override(exchange));
+                  if (sucess) {
+                    LOGGER.debug("Request to reindex the content");
+                    IndexService indexService = new IndexService(config);
+                    indexService.indexContent();
+                  }
+
                 });
                 if (service.moveZip(uploadedFile, name)) {
                   thread.start();
@@ -78,22 +85,23 @@ public class UploadHandler implements HttpHandler {
     }
 
   }
+
   public boolean override(HttpServerExchange exchange) {
     Map<String, Deque<String>> queryParameters = exchange.getQueryParameters();
     LOGGER.debug("Query Parameters: {}, Query: {}", queryParameters, exchange.getQueryString());
 
     Deque<String> query = queryParameters.get("Overridei18n");
     if (query != null) {
-        switch (query.element()) {
-        case "true":
-          return true;
-        case "false":
-          return false;
-        default:
-          return false;
-        }
-    
-  }
+      switch (query.element()) {
+      case "true":
+        return true;
+      case "false":
+        return false;
+      default:
+        return false;
+      }
+
+    }
     return false;
   }
 }
