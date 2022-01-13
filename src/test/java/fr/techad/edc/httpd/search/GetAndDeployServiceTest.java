@@ -1,7 +1,5 @@
 package fr.techad.edc.httpd.search;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,11 +9,13 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.annotation.Testable;
+
 import com.networknt.config.Config;
 
 import fr.techad.edc.httpd.UploadHandler;
@@ -31,7 +31,7 @@ public class GetAndDeployServiceTest {
   static GetAndDeployService service = new GetAndDeployService(config);
   final String docPath = config.getBase() + "/" + config.getDocFolder() + "/";
 
-  @BeforeClass
+  @BeforeAll
   public static void initTests() throws IOException {
     File testZip = new File("./src/test/resources/testZip.zip");
     service.moveZip(testZip, testZip.getName());
@@ -52,7 +52,7 @@ public class GetAndDeployServiceTest {
     service.moveZip(testFile, "." + testZip.getName());
   }
 
-  @Before
+  @BeforeEach
   public void initTestdoc() throws IOException {
     FileUtils.copyDirectory(new File(config.getBase() + "/" + config.getDocFolder()),
         new File("./src/test/resources/backup"));
@@ -60,7 +60,7 @@ public class GetAndDeployServiceTest {
         new File(config.getBase() + "/" + config.getDocFolder()));
   }
 
-  @After
+  @AfterEach
   public void cleanTests() throws IOException {
     FileUtils.deleteDirectory(new File(config.getBase() + "/" + config.getDocFolder()));
     FileUtils.copyDirectory(new File("./src/test/resources/backup"),
@@ -71,23 +71,25 @@ public class GetAndDeployServiceTest {
   @Test
   public void moveSucess() throws IOException {
     File testZip = new File("./src/test/resources/testZip.zip");
-    Assert.assertTrue(service.moveZip(testZip, testZip.getName()));
+    Assertions.assertTrue(service.moveZip(testZip, testZip.getName()));
   }
 
   @Test
   public void moveFailure() throws IOException {
     File testFile = new File("./src/test/resources/testFile.txt");
-    Assert.assertFalse(service.moveZip(testFile, testFile.getName()));
+    Assertions.assertFalse(service.moveZip(testFile, testFile.getName()));
   }
 
   @Test
   public void processingFailure() throws IOException {
-    File docDir=new File(docPath);
+    File docDir = new File(docPath);
     FileUtils.cleanDirectory(docDir);
-    Assert.assertFalse(service.processing("./testZip.zip", true));
-    Assert.assertFalse(service.processing("./.testZip.zip", true));
-    Assert.assertEquals(0, FileUtils.listFilesAndDirs(docDir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size()-1);
+    Assertions.assertFalse(service.processing("./testZip.zip", true));
+    Assertions.assertFalse(service.processing("./.testZip.zip", true));
+    Assertions.assertEquals(0,
+        FileUtils.listFilesAndDirs(docDir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size() - 1);
   }
+
 //
 //  @Test
 //  public void processingNonExist() {
@@ -97,70 +99,76 @@ public class GetAndDeployServiceTest {
 //
   @Test
   public void processingBadStructure() throws IOException {
-    File docDir=new File(docPath);
+    File docDir = new File(docPath);
     FileUtils.cleanDirectory(docDir);
-    Assert.assertFalse(service.processing("./docexample.zip", true));
-    Assert.assertEquals(0, FileUtils.listFilesAndDirs(docDir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size()-1);
+    Assertions.assertFalse(service.processing("./docexample.zip", true));
+    Assertions.assertEquals(0,
+        FileUtils.listFilesAndDirs(docDir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size() - 1);
   }
 
   @Test
   public void processingSucesswithBadFiles() {
-    Assert.assertTrue(service.processing("./docexample2.zip", true));
-    String []ext={"exe","js","sh"};
-    assertEquals(0, FileUtils.listFiles(new File(docPath),ext , true).size()); 
-   
+    Assertions.assertTrue(service.processing("./docexample2.zip", true));
+    String[] ext = { "exe", "js", "sh" };
+    Assertions.assertEquals(0, FileUtils.listFiles(new File(docPath), ext, true).size());
+
   }
 
   @Test
   public void processingSucessReplace() throws IOException {
-    Assert.assertTrue(service.processing("./docexample3.zip", true));
-    File check=new File(docPath+"/a/b.html");
-    Assert.assertTrue(check.exists());
-    Assert.assertFalse(new File(docPath+"/a/a.html").exists());
-    Assert.assertTrue( FileUtils.readFileToString(check, StandardCharsets.UTF_8.name()) .equals("b") );
+    Assertions.assertTrue(service.processing("./docexample3.zip", true));
+    File check = new File(docPath + "/a/b.html");
+    Assertions.assertTrue(check.exists());
+    Assertions.assertFalse(new File(docPath + "/a/a.html").exists());
+    Assertions.assertTrue(FileUtils.readFileToString(check, StandardCharsets.UTF_8.name()).equals("b"));
   }
 
   @Test
-  public void processingSucessNew()  {
-    Assert.assertTrue(service.processing("./docexample4.zip", true));
-    File newdir=new File(docPath+"/new");
-    Assert.assertTrue(newdir.exists());
-    Assert.assertEquals(50, FileUtils.listFilesAndDirs(newdir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size()-1);
+  public void processingSucessNew() {
+    Assertions.assertTrue(service.processing("./docexample4.zip", true));
+    File newdir = new File(docPath + "/new");
+    Assertions.assertTrue(newdir.exists());
+    Assertions.assertEquals(50,
+        FileUtils.listFilesAndDirs(newdir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size() - 1);
   }
 
   @Test
   public void processingSucessNotOverride() throws IOException {
-    Assert.assertTrue(service.processing("./docexample5.zip", false));
-    File here1=new File(docPath+"/i18n/popover/fr.json");
-    File here2=new File(docPath+"/i18n/web-help/fr.json");
-    File check=new File(docPath+"/i18n/popover/en.json");
-    File check2=new File(docPath+"/i18n/web-help/en.json");
-    Assert.assertTrue(here1.exists());
-    Assert.assertTrue(here2.exists());
-    Assert.assertFalse( FileUtils.readFileToString(check, StandardCharsets.UTF_8.name()) .equals("a") );
-    Assert.assertFalse( FileUtils.readFileToString(check2, StandardCharsets.UTF_8.name()) .equals("a") );  
+    Assertions.assertTrue(service.processing("./docexample5.zip", false));
+    File here1 = new File(docPath + "/i18n/popover/fr.json");
+    File here2 = new File(docPath + "/i18n/web-help/fr.json");
+    File check = new File(docPath + "/i18n/popover/en.json");
+    File check2 = new File(docPath + "/i18n/web-help/en.json");
+    Assertions.assertTrue(here1.exists());
+    Assertions.assertTrue(here2.exists());
+    Assertions.assertFalse(FileUtils.readFileToString(check, StandardCharsets.UTF_8.name()).equals("a"));
+    Assertions.assertFalse(FileUtils.readFileToString(check2, StandardCharsets.UTF_8.name()).equals("a"));
   }
+
   @Test
   public void processingSucessOverride() throws IOException {
-    Assert.assertTrue(service.processing("./docexample6.zip", true));
-    File here1=new File(docPath+"/i18n/popover/fr.json");
-    File here2=new File(docPath+"/i18n/web-help/fr.json");
-    File check=new File(docPath+"/i18n/popover/en.json");
-    File check2=new File(docPath+"/i18n/web-help/en.json");
-    Assert.assertTrue(here1.exists());
-    Assert.assertTrue(here2.exists());
-    Assert.assertTrue( FileUtils.readFileToString(check, StandardCharsets.UTF_8.name()) .equals("ne") );
-    Assert.assertTrue( FileUtils.readFileToString(check2, StandardCharsets.UTF_8.name()) .equals("ne") );  
+    Assertions.assertTrue(service.processing("./docexample6.zip", true));
+    File here1 = new File(docPath + "/i18n/popover/fr.json");
+    File here2 = new File(docPath + "/i18n/web-help/fr.json");
+    File check = new File(docPath + "/i18n/popover/en.json");
+    File check2 = new File(docPath + "/i18n/web-help/en.json");
+    Assertions.assertTrue(here1.exists());
+    Assertions.assertTrue(here2.exists());
+    Assertions.assertTrue(FileUtils.readFileToString(check, StandardCharsets.UTF_8.name()).equals("ne"));
+    Assertions.assertTrue(FileUtils.readFileToString(check2, StandardCharsets.UTF_8.name()).equals("ne"));
   }
+
   @Test
   public void processingEmptyDoc() throws IOException {
     FileUtils.deleteDirectory(new File(docPath));
     File good4Zip = new File("./src/test/resources/docexample4.zip");
     service.moveZip(good4Zip, good4Zip.getName());
-    Assert.assertTrue(service.processing("./docexample4.zip", true));
-    File docdir=new File(docPath);
-    Assert.assertTrue(FileUtils.listFilesAndDirs(docdir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size()-1 > 0);
+    Assertions.assertTrue(service.processing("./docexample4.zip", true));
+    File docdir = new File(docPath);
+    Assertions.assertTrue(
+        FileUtils.listFilesAndDirs(docdir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE).size() - 1 > 0);
   }
+
   @Test
   public void HandleBadToken() throws Exception {
     UploadHandler uh = new UploadHandler(Config.getInstance().getMapper(), config, TokenUtils.getInstance());
@@ -168,7 +176,7 @@ public class GetAndDeployServiceTest {
     HttpServerExchange exc = new HttpServerExchange(null);
     exc.getRequestHeaders().put(new HttpString("Edc-Token"), "FakeToken");
     uh.handleRequest(exc);
-    Assert.assertEquals(401, exc.getStatusCode());
+    Assertions.assertEquals(401, exc.getStatusCode());
   }
 
   public boolean areDirsEqual(File dir1, File dir2) {
