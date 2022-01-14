@@ -3,9 +3,6 @@ package fr.techad.edc.httpd.search;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -68,7 +65,7 @@ public class GetAndDeployServiceTest {
   }
 
   @Test
-  public void moveSucess() throws IOException {
+  public void moveSuccess() throws IOException {
     File testZip = new File("./src/test/resources/testZip.zip");
     Assertions.assertTrue(service.moveZip(testZip, testZip.getName()));
   }
@@ -99,7 +96,7 @@ public class GetAndDeployServiceTest {
   }
 
   @Test
-  public void processingSucesswithBadFiles() {
+  public void processingSuccessWithBadFiles() {
     Assertions.assertTrue(service.processing("./docexample2.zip", true));
     String[] ext = { "exe", "js", "sh" };
     Assertions.assertEquals(0, FileUtils.listFiles(new File(docPath), ext, true).size());
@@ -107,7 +104,7 @@ public class GetAndDeployServiceTest {
   }
 
   @Test
-  public void processingSucessReplace() throws IOException {
+  public void processingSuccessReplace() throws IOException {
     Assertions.assertTrue(service.processing("./docexample3.zip", true));
     File check = new File(docPath + "/a/b.html");
     Assertions.assertTrue(check.exists());
@@ -116,7 +113,7 @@ public class GetAndDeployServiceTest {
   }
 
   @Test
-  public void processingSucessNew() {
+  public void processingSuccessNew() {
     Assertions.assertTrue(service.processing("./docexample4.zip", true));
     File newdir = new File(docPath + "/new");
     Assertions.assertTrue(newdir.exists());
@@ -125,7 +122,7 @@ public class GetAndDeployServiceTest {
   }
 
   @Test
-  public void processingSucessNotOverride() throws IOException {
+  public void processingSuccessNotOverride() throws IOException {
     Assertions.assertTrue(service.processing("./docexample5.zip", false));
     File here1 = new File(docPath + "/i18n/popover/fr.json");
     File here2 = new File(docPath + "/i18n/web-help/fr.json");
@@ -138,7 +135,7 @@ public class GetAndDeployServiceTest {
   }
 
   @Test
-  public void processingSucessOverride() throws IOException {
+  public void processingSuccessOverride() throws IOException {
     Assertions.assertTrue(service.processing("./docexample6.zip", true));
     File here1 = new File(docPath + "/i18n/popover/fr.json");
     File here2 = new File(docPath + "/i18n/web-help/fr.json");
@@ -171,42 +168,5 @@ public class GetAndDeployServiceTest {
     Assertions.assertEquals(401, exc.getStatusCode());
   }
 
-  public boolean areDirsEqual(File dir1, File dir2) {
-    List<File> filesDir1 = (List<File>) FileUtils.listFiles(dir1, null, true);
-    List<File> filesDir2 = (List<File>) FileUtils.listFiles(dir2, null, true);
-    List<String> paths1 = new ArrayList<String>();
-    List<String> paths2 = new ArrayList<String>();
-    for (File f : filesDir1) {
-      String path1 = f.getPath();
-      String[] split1 = path1.split("doc");
-      if (f.getName().equals("multi-doc.json")) {
-        paths1.add(split1[1] + "doc" + split1[2]);
-      } else {
-        paths1.add(split1[1]);
-      }
-    }
-    for (File f : filesDir2) {
-      String path2 = f.getPath();
-      String splitter = dir2.getName();
-      String[] split2 = path2.split(splitter);
-      paths2.add(split2[1]);
-    }
-    boolean res = false;
-    if (paths1.containsAll(paths2)) {
-      Collections.sort(filesDir1);
-      Collections.sort(filesDir2);
-      for (int i = 0; i < filesDir1.size(); i++) {
-        try {
-          if (FileUtils.contentEquals(filesDir1.get(i), filesDir2.get(i))) {
-            res = true;
-          } else {
-            return false;
-          }
-        } catch (IOException e) {
-          res = false;
-        }
-      }
-    }
-    return res;
-  }
+ 
 }
