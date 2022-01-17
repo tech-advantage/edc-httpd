@@ -3,7 +3,6 @@ package fr.techad.edc.httpd.search;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
