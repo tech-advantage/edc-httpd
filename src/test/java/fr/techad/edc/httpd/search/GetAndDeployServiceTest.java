@@ -59,9 +59,7 @@ public class GetAndDeployServiceTest {
   @AfterEach
   public void cleanTests() throws IOException {
     FileUtils.deleteDirectory(new File(config.getBase() + "/" + config.getDocFolder()));
-    FileUtils.copyDirectory(new File("./src/test/resources/backup"),
-        new File(config.getBase() + "/" + config.getDocFolder()));
-    FileUtils.deleteDirectory(new File("./src/test/resources/backup"));
+    FileUtils.moveDirectory(new File("./src/test/resources/backup"), new File(config.getBase() + "/" + config.getDocFolder()));
   }
 
   @Test
