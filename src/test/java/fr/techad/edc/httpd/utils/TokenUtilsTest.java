@@ -4,16 +4,28 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class TokenUtilsTest {
   private final String tokenPath = "./token.info";
-  private final String keyPath = "./private.key";
+  private final static String keyPath = "./private.key";
   TokenUtils tutil = TokenUtils.getInstance();
 
+  @BeforeAll
+  public static void backupKey() throws IOException {
+    FileUtils.copyFile(new File(keyPath), new File("./src/test/resources/backup/backup.key"));
+  }
+  @AfterAll
+  public static void restoreKey() throws IOException {
+    FileUtils.deleteQuietly(new File(keyPath));
+    FileUtils.moveFile(new File("./src/test/resources/backup/backup.key"),new File(keyPath));
+  }
+  
   @BeforeEach
   public void createToken() throws IOException {
     tutil.createTokenFile();
