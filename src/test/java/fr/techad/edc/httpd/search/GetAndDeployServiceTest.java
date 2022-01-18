@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,12 +47,16 @@ public class GetAndDeployServiceTest {
 
     File testFile = new File("./src/test/resources/testFile.txt");
     service.moveZip(testFile, "." + testZip.getName());
-  }
-
-  @BeforeEach
-  public void initTestdoc() throws IOException {
     FileUtils.copyDirectory(new File(config.getBase() + "/" + config.getDocFolder()),
         new File("./src/test/resources/backup"));
+  }
+  @AfterAll
+  public static void restoreBackup() throws IOException {
+    FileUtils.moveDirectory(new File("./src/test/resources/backup"), new File(config.getBase() + "/" + config.getDocFolder()));
+  }
+  @BeforeEach
+  public void initTestdoc() throws IOException {
+
     FileUtils.copyDirectory(new File("./src/test/resources/docTest"),
         new File(config.getBase() + "/" + config.getDocFolder()));
   }
@@ -59,7 +64,6 @@ public class GetAndDeployServiceTest {
   @AfterEach
   public void cleanTests() throws IOException {
     FileUtils.deleteDirectory(new File(config.getBase() + "/" + config.getDocFolder()));
-    FileUtils.moveDirectory(new File("./src/test/resources/backup"), new File(config.getBase() + "/" + config.getDocFolder()));
   }
 
   @Test
