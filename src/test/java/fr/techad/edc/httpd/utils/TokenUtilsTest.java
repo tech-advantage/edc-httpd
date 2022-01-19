@@ -10,18 +10,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.TestInstance;
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TokenUtilsTest {
   private final String tokenPath = "./token.info";
-  private final static String keyPath = "./private.key";
+  private final String keyPath = "./private.key";
   TokenUtils tutil = TokenUtils.getInstance();
 
   @BeforeAll
-  public static void backupKey() throws IOException {
+  public void backupKey() throws IOException {
     FileUtils.copyFile(new File(keyPath), new File("./src/test/resources/backup/backup.key"));
   }
   @AfterAll
-  public static void restoreKey() throws IOException {
+  public void restoreKey() throws IOException {
     FileUtils.deleteQuietly(new File(keyPath));
     FileUtils.moveFile(new File("./src/test/resources/backup/backup.key"),new File(keyPath));
   }

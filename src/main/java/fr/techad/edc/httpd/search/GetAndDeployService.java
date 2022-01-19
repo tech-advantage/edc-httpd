@@ -33,13 +33,13 @@ public class GetAndDeployService {
       if (verifyStructure(tmpdir)) {
         cleanPreviousDoc(tmpdir, docPath, override);
         synchronize(tmpdir, docPath, override);
-        LOGGER.info("Processing finished");
         succeed = true;
       }
     } catch (IOException e) {
       LOGGER.error("Error in processing operations", e);
     }
     removeTempFiles(tmpdir, zip);
+    LOGGER.info("Processing finished");
     return succeed;
   }
 

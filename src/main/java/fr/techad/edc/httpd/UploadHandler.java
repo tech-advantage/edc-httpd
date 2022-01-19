@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,15 +93,7 @@ public class UploadHandler implements HttpHandler {
 
     Deque<String> query = queryParameters.get("Overridei18n");
     if (query != null) {
-      switch (query.element()) {
-      case "true":
-        return true;
-      case "false":
-        return false;
-      default:
-        return false;
-      }
-
+      return BooleanUtils.toBoolean(query.element());
     }
     return false;
   }

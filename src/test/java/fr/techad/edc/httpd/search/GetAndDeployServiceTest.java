@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import com.networknt.config.Config;
 
@@ -21,15 +22,16 @@ import fr.techad.edc.httpd.utils.TokenUtils;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HttpString;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GetAndDeployServiceTest {
-  static final String CONFIG_NAME = "webserver";
-  static WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
+  final String CONFIG_NAME = "webserver";
+   WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
       WebServerConfig.class);
-  static GetAndDeployService service = new GetAndDeployService(config);
+  GetAndDeployService service = new GetAndDeployService(config);
   final String docPath = config.getBase() + "/" + config.getDocFolder() + "/";
 
   @BeforeAll
-  public static void initTests() throws IOException {
+  public void initTests() throws IOException {
     File testZip = new File("./src/test/resources/testZip.zip");
     service.moveZip(testZip, testZip.getName());
     File goodZip = new File("./src/test/resources/docexample.zip");
@@ -51,7 +53,7 @@ public class GetAndDeployServiceTest {
         new File("./src/test/resources/backup"));
   }
   @AfterAll
-  public static void restoreBackup() throws IOException {
+  public void restoreBackup() throws IOException {
     FileUtils.moveDirectory(new File("./src/test/resources/backup"), new File(config.getBase() + "/" + config.getDocFolder()));
   }
   @BeforeEach
