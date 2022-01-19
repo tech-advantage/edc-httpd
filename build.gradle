@@ -29,7 +29,8 @@ dependencies {
     implementation 'com.auth0:java-jwt:3.18.2'
     implementation 'net.lingala.zip4j:zip4j:2.9.0'
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'org.mockito:mockito-all:1.9.5'
 }
 

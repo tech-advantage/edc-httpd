@@ -3,13 +3,17 @@ package fr.techad.edc.httpd;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.techad.edc.httpd.search.UploadService;
+import fr.techad.edc.httpd.search.GetAndDeployService;
+import fr.techad.edc.httpd.search.IndexService;
 import fr.techad.edc.httpd.utils.TokenUtils;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -36,10 +40,10 @@ public class UploadHandler implements HttpHandler {
   public void handleRequest(HttpServerExchange exchange) throws Exception {
     Builder builder = FormParserFactory.builder();
     final FormDataParser formDataParser = builder.build().createParser(exchange);
+    // If not present Test can't be done
     if (exchange.getConnection() != null) {
       exchange.setMaxEntitySize(config.getRequestMaxSize());
     }
-    // If not present Test can't be done
     if (tokenutils.verifyToken(exchange)) {
       exchange.dispatch((e) -> {
         exchange.startBlocking();
@@ -50,10 +54,16 @@ public class UploadHandler implements HttpHandler {
             for (FormData.FormValue formValue : formData.get(data)) {
               if (formValue.isFileItem()) {
                 File uploadedFile = formValue.getFileItem().getFile().toFile();
-                UploadService service = new UploadService(config);
+                GetAndDeployService service = new GetAndDeployService(config);
                 String name = formValue.getFileName();
                 Thread thread = new Thread(() -> {
-                  service.processing(name);
+                  boolean sucess = service.processing(name, override(exchange));
+                  if (sucess) {
+                    LOGGER.debug("Request to reindex the content");
+                    IndexService indexService = new IndexService(config);
+                    indexService.indexContent();
+                  }
+
                 });
                 if (service.moveZip(uploadedFile, name)) {
                   thread.start();
@@ -77,4 +87,14 @@ public class UploadHandler implements HttpHandler {
 
   }
 
+  public boolean override(HttpServerExchange exchange) {
+    Map<String, Deque<String>> queryParameters = exchange.getQueryParameters();
+    LOGGER.debug("Query Parameters: {}, Query: {}", queryParameters, exchange.getQueryString());
+
+    Deque<String> query = queryParameters.get("Overridei18n");
+    if (query != null) {
+      return BooleanUtils.toBoolean(query.element());
+    }
+    return false;
+  }
 }

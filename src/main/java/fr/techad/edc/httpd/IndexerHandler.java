@@ -2,9 +2,7 @@ package fr.techad.edc.httpd;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +12,6 @@ import fr.techad.edc.httpd.search.IndexService;
 import fr.techad.edc.httpd.utils.TokenUtils;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
 

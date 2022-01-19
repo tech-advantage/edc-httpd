@@ -69,6 +69,11 @@ Then you put your file like the example below.
 ```Shell
    curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload
 ```
+
+By default this upload will not override the i18n folder. To override it you have to put the parameter Overridei18n=true after the URL like this :
+```Shell
+   curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload?Overridei18n=true
+```
 ## Configuration
 
 ### Define the path
