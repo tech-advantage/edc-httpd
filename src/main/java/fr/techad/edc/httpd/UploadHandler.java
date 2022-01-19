@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.techad.edc.httpd.search.GetAndDeployService;
+import fr.techad.edc.httpd.deploy.GetAndDeployService;
 import fr.techad.edc.httpd.search.IndexService;
 import fr.techad.edc.httpd.utils.TokenUtils;
 import io.undertow.server.HttpHandler;

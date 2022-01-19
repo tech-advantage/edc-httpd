@@ -1,4 +1,4 @@
-package fr.techad.edc.httpd.search;
+package fr.techad.edc.httpd.deploy;
 
 import java.io.File;
 import java.io.IOException;
