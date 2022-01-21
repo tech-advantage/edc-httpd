@@ -18,7 +18,6 @@ import com.networknt.config.Config;
 
 import fr.techad.edc.httpd.UploadHandler;
 import fr.techad.edc.httpd.WebServerConfig;
-import fr.techad.edc.httpd.deploy.GetAndDeployService;
 import fr.techad.edc.httpd.utils.TokenUtils;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HttpString;
