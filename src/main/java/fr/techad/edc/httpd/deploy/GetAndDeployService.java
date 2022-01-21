@@ -39,7 +39,7 @@ public class GetAndDeployService {
     } catch (IOException e) {
       LOGGER.error("Error in processing operations", e);
     }
-    removeTempFiles(tmpdir, zip,docPath);
+    removeTempFiles(tmpdir, zip, docPath);
     LOGGER.info("Processing finished");
     return succeed;
   }
@@ -54,15 +54,15 @@ public class GetAndDeployService {
       return false;
   }
 
-  private void removeTempFiles(File tmpdir, File zip,String docPath) {
+  private void removeTempFiles(File tmpdir, File zip, String docPath) {
     try {
       if (tmpdir.exists()) {
         FileUtils.deleteDirectory(tmpdir);
         LOGGER.debug("Cleaning :{}", tmpdir.getCanonicalPath());
       }
       File[] dirToRemove = new File(docPath).listFiles(File::isDirectory);
-      for(File f : dirToRemove) {
-        if(f.getName().contains("-old")) {
+      for (File f : dirToRemove) {
+        if (f.getName().contains("-old")) {
           FileUtils.deleteDirectory(f);
           LOGGER.debug("Cleaning :{}", f.getCanonicalPath());
         }
@@ -83,13 +83,13 @@ public class GetAndDeployService {
   private void cleanPreviousDoc(File directory, String docPath, boolean override) throws IOException {
     if (new File(docPath).exists()) {
       File[] directoriestoClean = new File(docPath).listFiles(File::isDirectory);
-        for (File dir : directoriestoClean) {
-            if (dir.getName().equals("i18n")) {
-              if (override) {
-              LOGGER.debug("Cleaning :{}", dir.getCanonicalPath());
-              FileUtils.cleanDirectory(dir);
-            }
+      for (File dir : directoriestoClean) {
+        if (dir.getName().equals("i18n")) {
+          if (override) {
+            LOGGER.debug("Cleaning :{}", dir.getCanonicalPath());
+            FileUtils.cleanDirectory(dir);
           }
+        }
       }
     }
   }
@@ -109,12 +109,12 @@ public class GetAndDeployService {
       String path1 = f.getPath();
       path1 = path1.replace(directory.getCanonicalPath(), "");
       path1 = path1.replace("\\", "/");
-      String [] tmp=path1.split("/");
-       name = tmp[1];
-       if(!(name.equals("multi-doc.json")||name.equals("i18n"))) {
-         tmp[1]=name+"-new";
-         path1=StringUtils.join(tmp,"/");
-       }
+      String[] tmp = path1.split("/");
+      name = tmp[1];
+      if (!(name.equals("multi-doc.json") || name.equals("i18n"))) {
+        tmp[1] = name + "-new";
+        path1 = StringUtils.join(tmp, "/");
+      }
       if (f.getPath().contains("i18n") && new File(docPath + path1).exists() && !override) {
         LOGGER.debug("Not override :{}", docPath + path1);
       } else {
@@ -124,9 +124,10 @@ public class GetAndDeployService {
     }
     File[] dirToMove = new File(docPath).listFiles(File::isDirectory);
     for (File f : dirToMove) {
-        new File(f.getCanonicalPath().replace("-new", "")).renameTo(new File(f.getCanonicalPath().replace("-new", "-old"))); 
-        if(f.getName().contains("-new")){
-          f.renameTo(new File(f.getCanonicalPath().replace("-new", "")));
+      new File(f.getCanonicalPath().replace("-new", ""))
+          .renameTo(new File(f.getCanonicalPath().replace("-new", "-old")));
+      if (f.getName().contains("-new")) {
+        f.renameTo(new File(f.getCanonicalPath().replace("-new", "")));
       }
     }
   }

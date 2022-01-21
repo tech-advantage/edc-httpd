@@ -1,4 +1,4 @@
-package fr.techad.edc.httpd.search;
+package fr.techad.edc.httpd.deploy;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import io.undertow.util.HttpString;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GetAndDeployServiceTest {
   final String CONFIG_NAME = "webserver";
-   WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
+  WebServerConfig config = (WebServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME,
       WebServerConfig.class);
   GetAndDeployService service = new GetAndDeployService(config);
   final String docPath = config.getBase() + "/" + config.getDocFolder() + "/";
@@ -53,10 +53,13 @@ public class GetAndDeployServiceTest {
     FileUtils.copyDirectory(new File(config.getBase() + "/" + config.getDocFolder()),
         new File("./src/test/resources/backup"));
   }
+
   @AfterAll
   public void restoreBackup() throws IOException {
-    FileUtils.moveDirectory(new File("./src/test/resources/backup"), new File(config.getBase() + "/" + config.getDocFolder()));
+    FileUtils.moveDirectory(new File("./src/test/resources/backup"),
+        new File(config.getBase() + "/" + config.getDocFolder()));
   }
+
   @BeforeEach
   public void initTestdoc() throws IOException {
 
@@ -173,5 +176,4 @@ public class GetAndDeployServiceTest {
     Assertions.assertEquals(401, exc.getStatusCode());
   }
 
- 
 }
