@@ -18,6 +18,8 @@ public class GetAndDeployService {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetAndDeployService.class);
   private final WebServerConfig config;
   private final String tempdirPath = FileUtils.getTempDirectoryPath();
+  private final String SUFFIX_NEW = "-new";
+  private final String SUFFIX_OLD = "-old";
 
   public GetAndDeployService(WebServerConfig config) {
     this.config = config;
@@ -62,7 +64,7 @@ public class GetAndDeployService {
       }
       File[] dirToRemove = new File(docPath).listFiles(File::isDirectory);
       for (File f : dirToRemove) {
-        if (f.getName().contains("-old")) {
+        if (f.getName().contains(SUFFIX_OLD)) {
           FileUtils.deleteDirectory(f);
           LOGGER.debug("Cleaning :{}", f.getCanonicalPath());
         }
@@ -112,7 +114,7 @@ public class GetAndDeployService {
       String[] tmp = path1.split("/");
       name = tmp[1];
       if (!(name.equals("multi-doc.json") || name.equals("i18n"))) {
-        tmp[1] = name + "-new";
+        tmp[1] = name + SUFFIX_NEW;
         path1 = StringUtils.join(tmp, "/");
       }
       if (f.getPath().contains("i18n") && new File(docPath + path1).exists() && !override) {
@@ -124,10 +126,10 @@ public class GetAndDeployService {
     }
     File[] dirToMove = new File(docPath).listFiles(File::isDirectory);
     for (File f : dirToMove) {
-      new File(f.getCanonicalPath().replace("-new", ""))
-          .renameTo(new File(f.getCanonicalPath().replace("-new", "-old")));
-      if (f.getName().contains("-new")) {
-        f.renameTo(new File(f.getCanonicalPath().replace("-new", "")));
+      new File(f.getCanonicalPath().replace(SUFFIX_NEW, ""))
+          .renameTo(new File(f.getCanonicalPath().replace(SUFFIX_NEW, SUFFIX_OLD)));
+      if (f.getName().contains(SUFFIX_NEW)) {
+        f.renameTo(new File(f.getCanonicalPath().replace(SUFFIX_NEW, "")));
       }
     }
   }
