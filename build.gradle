@@ -1,22 +1,21 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
 group 'fr.techad'
 version '1.2.0'
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-
 sourceCompatibility = 1.8
+configurations.implementation.setCanBeResolved(true)
+configurations.api.setCanBeResolved(true)
 
-ext {
-    isReleaseVersion = !version.endsWith("SNAPSHOT")
-    signArtefact = project.hasProperty('ossrhUsername')
-}
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+ext.signArtefact = project.hasProperty('ossrhUsername')
 
 repositories {
     mavenCentral()
     mavenLocal()
 }
-
 dependencies {
     // light-4j
     implementation 'com.networknt:server:2.0.32' 
@@ -32,6 +31,73 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'org.mockito:mockito-all:1.9.5'
+}
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Main-Class': 'fr.techad.edc.httpd.EdcWebServer'
+        )
+    }
+from {
+    configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'edc-httpd'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'edc httpd'
+                description = 'Embedded httpd server to serve the help documentation published by edc'
+                url = 'https://www.easydoccontents.com'
+                licenses {
+                    license {
+                         name = 'MIT License'
+                         url = 'http://www.opensource.org/licenses/mit-license.php'
+                         distribution =  'repo'
+                    }
+                }
+                developers {
+                    developer {
+                    name = 'Gregory Cochon'
+                    email= 'gregory.cochon@tech-advantage.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/tech-advantage/edc-httpd-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/tech-advantage/edc-httpd-java.git'
+                    url = 'https://github.com/tech-advantage/edc-httpd-java'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            // change URLs to point to your repos, e.g. http://my.org/repo
+            def releasesRepoUrl = layout.buildDirectory.dir('repos/releases')
+            def snapshotsRepoUrl = layout.buildDirectory.dir('repos/snapshots')
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository)     }
+                sign publishing.publications.mavenJava
+    sign configurations.archives
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -51,112 +117,16 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
-
 artifacts {
     archives sourcesJar
     archives javadocJar
 }
-/*
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom.packaging = 'jar'
-            pom.withXml {
-                asNode().with {
-                    appendNode('packaging', 'jar')
-                    appendNode('name', 'edc httpd')
-                    appendNode('description', 'Embedded httpd server to serve the help documentation published by edc')
-                    appendNode('url', 'https://www.easydoccontents.com')
-                    appendNode('organization').with {
-                        appendNode('name', 'TECH advantage')
-                        appendNode('url', 'https://www.tech-advantage.com')
-                    }
-                    appendNode('licenses').with {
-                        appendNode('license').with {
-                            appendNode('name', 'MIT License')
-                            appendNode('url', 'http://www.opensource.org/licenses/mit-license.php')
-                            appendNode('distribution', 'repo')
-                        }
-                    }
-                    appendNode('scm').with {
-                        appendNode('url', 'https://github.com/tech-advantage/edc-httpd-java')
-                        appendNode('connection', 'scm:git:git://github.com/tech-advantage/edc-httpd-java.git')
-                    }
-                    appendNode('developers').with {
-                        appendNode('developer').with {
-                            appendNode('name', 'Gregory Cochon')
-                            appendNode('email', 'gregory.cochon@tech-advantage.com')
-                        }
-                    }
-                }
-            }
-            if (signArtefact) {
-                // sign the pom
-                pom.withXml {
-                    def pomFile = file("${project.buildDir}/publications/mavenJava/pom-default.xml")
-                    writeTo(pomFile)
-                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
-                    artifact(pomAscFile) {
-                        classifier = null
-                        extension = 'pom.asc'
-                    }
-                    //  pomFile.delete()
-                }
-
-                // sign the artifacts
-                project.tasks.signArchives.signatureFiles.each {
-                    artifact(it) {
-                        def matcher = it.file =~ /-(sources|javadoc|jre9)\.jar\.asc$/
-                        if (matcher.find()) {
-                            classifier = matcher.group(1)
-                        } else {
-                            classifier = null
-                        }
-                        extension = 'jar.asc'
-                    }
-                }
-            }
-        }
-    }
-    /*
-    repositories {
-        maven {
-            url isReleaseVersion ? "https://oss.sonatype.org/service/local/staging/deploy/maven2" : "https://oss.sonatype.org/content/repositories/snapshots"
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
-        }
-    }
-    
-}
-
-
-signing {
-    required { signArtefact && gradle.taskGraph.hasTask("publishing") }
-    sign configurations.archives
-}
-
-model {
-    tasks.publishMavenJavaPublicationToMavenLocal {
-        dependsOn(project.tasks.signArchives)
-    }
-    tasks.publishMavenJavaPublicationToMavenRepository {
-        dependsOn(project.tasks.signArchives)
-    }
-    tasks.publish {
-        dependsOn(project.tasks.build)
-    }
-    tasks.install {
-        dependsOn(project.tasks.build)
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }
-*/
+
 task install(dependsOn: publishToMavenLocal) {
     group = 'Publishing'
     description = 'Installs artifacts to local Maven repository'
@@ -169,3 +139,10 @@ task release() {
     dependsOn build
     dependsOn javadoc
 }
+
+    tasks.publish {
+        dependsOn(project.tasks.build)
+    }
+    tasks.install {
+        dependsOn(project.tasks.build)
+    }
