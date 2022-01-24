@@ -45,6 +45,10 @@ from {
     configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
   }
 }
+//Execute Junit tests
+test {
+    useJUnitPlatform()
+}
 
 publishing {
     publications {
