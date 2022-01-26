@@ -1,4 +1,4 @@
-package fr.techad.edc.httpd.search;
+package fr.techad.edc.httpd.deploy;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,8 @@ public class GetAndDeployService {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetAndDeployService.class);
   private final WebServerConfig config;
   private final String tempdirPath = FileUtils.getTempDirectoryPath();
+  private final String SUFFIX_NEW = "-new";
+  private final String SUFFIX_OLD = "-old";
 
   public GetAndDeployService(WebServerConfig config) {
     this.config = config;
@@ -38,7 +41,7 @@ public class GetAndDeployService {
     } catch (IOException e) {
       LOGGER.error("Error in processing operations", e);
     }
-    removeTempFiles(tmpdir, zip);
+    removeTempFiles(tmpdir, zip, docPath);
     LOGGER.info("Processing finished");
     return succeed;
   }
@@ -53,10 +56,18 @@ public class GetAndDeployService {
       return false;
   }
 
-  private void removeTempFiles(File tmpdir, File zip) {
+  private void removeTempFiles(File tmpdir, File zip, String docPath) {
     try {
       if (tmpdir.exists()) {
         FileUtils.deleteDirectory(tmpdir);
+        LOGGER.debug("Cleaning :{}", tmpdir.getCanonicalPath());
+      }
+      File[] dirToRemove = new File(docPath).listFiles(File::isDirectory);
+      for (File f : dirToRemove) {
+        if (f.getName().contains(SUFFIX_OLD)) {
+          FileUtils.deleteDirectory(f);
+          LOGGER.debug("Cleaning :{}", f.getCanonicalPath());
+        }
       }
       zip.delete();
     } catch (IOException e) {
@@ -73,20 +84,12 @@ public class GetAndDeployService {
 
   private void cleanPreviousDoc(File directory, String docPath, boolean override) throws IOException {
     if (new File(docPath).exists()) {
-      File[] directoriestoCopy = directory.listFiles(File::isDirectory);
       File[] directoriestoClean = new File(docPath).listFiles(File::isDirectory);
-      for (File dir1 : directoriestoCopy) {
-        for (File dir2 : directoriestoClean) {
+      for (File dir : directoriestoClean) {
+        if (dir.getName().equals("i18n")) {
           if (override) {
-            if (dir1.getName().equals(dir2.getName())) {// test if folders are same
-              LOGGER.debug("Cleaning :{}", dir2.getCanonicalPath());
-              FileUtils.cleanDirectory(dir2);
-            }
-          } else {
-            if (dir1.getName().equals(dir2.getName()) && !(dir2.getName().contains("i18n"))) {
-              LOGGER.debug("Cleaning :{}", dir2.getCanonicalPath());
-              FileUtils.cleanDirectory(dir2);
-            }
+            LOGGER.debug("Cleaning :{}", dir.getCanonicalPath());
+            FileUtils.cleanDirectory(dir);
           }
         }
       }
@@ -98,6 +101,7 @@ public class GetAndDeployService {
         "j2k", "jpf", "jpx", "jpm", "mj2", "tiff", "tif", "json", "svg", "svgz", "pdf", "css", "html", "png", "txt",
         "gif", "ai" };
     List<File> filestoCopy = (List<File>) FileUtils.listFiles(directory, extensions, true);
+    String name = "";
     if (override) {
       LOGGER.info("Copying new Doc with overrinding i18n");
     } else {
@@ -106,11 +110,26 @@ public class GetAndDeployService {
     for (File f : filestoCopy) {
       String path1 = f.getPath();
       path1 = path1.replace(directory.getCanonicalPath(), "");
+      path1 = path1.replace("\\", "/");
+      String[] tmp = path1.split("/");
+      name = tmp[1];
+      if (!(name.equals("multi-doc.json") || name.equals("i18n"))) {
+        tmp[1] = name + SUFFIX_NEW;
+        path1 = StringUtils.join(tmp, "/");
+      }
       if (f.getPath().contains("i18n") && new File(docPath + path1).exists() && !override) {
         LOGGER.debug("Not override :{}", docPath + path1);
       } else {
         LOGGER.debug("Copying {} to {}", f.getPath(), docPath + path1);
         FileUtils.copyFile(f, new File(docPath + path1));
+      }
+    }
+    File[] dirToMove = new File(docPath).listFiles(File::isDirectory);
+    for (File f : dirToMove) {
+      new File(f.getCanonicalPath().replace(SUFFIX_NEW, ""))
+          .renameTo(new File(f.getCanonicalPath().replace(SUFFIX_NEW, SUFFIX_OLD)));
+      if (f.getName().contains(SUFFIX_NEW)) {
+        f.renameTo(new File(f.getCanonicalPath().replace(SUFFIX_NEW, "")));
       }
     }
   }
