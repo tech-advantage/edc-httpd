@@ -28,7 +28,13 @@ You can pull it from the central Maven repositories:
 
 ### Gradle
 ```groovy
-    compile group: 'fr.techad', name: 'edc-httpd-java', version: '1.2.0'
+    implementation 'fr.techad:edc-httpd-java:1.2.0'
+```
+## How can create and run a docker image?
+You have just to use this two commands in the repository
+```Shell
+docker build -t edc .
+docker run -p 8088:8088 -v [hostPath]:/home edc
 ```
 
 ## How can I search keyword in the content?
