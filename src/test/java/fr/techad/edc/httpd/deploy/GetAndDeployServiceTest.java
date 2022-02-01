@@ -47,10 +47,12 @@ public class GetAndDeployServiceTest {
     File good6Zip = new File("./src/test/resources/docexample6.zip");
     service.moveZip(good6Zip, good6Zip.getName());
 
-    File testFile = new File("./src/test/resources/testFile.txt");
+    File testFile = new File("./src/test/resources/testfile.txt");
     service.moveZip(testFile, "." + testZip.getName());
-    FileUtils.copyDirectory(new File(config.getBase() + "/" + config.getDocFolder()),
+    if(new File(config.getBase() + "/" + config.getDocFolder()).exists()){
+          FileUtils.copyDirectory(new File(config.getBase() + "/" + config.getDocFolder()),
         new File("./src/test/resources/backup"));
+    }
   }
 
   @AfterAll
