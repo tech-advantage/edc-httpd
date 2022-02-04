@@ -51,7 +51,7 @@ public class SearchHandler implements HttpHandler {
         }
         
         byte[] bytes;
-        if (query != null) {
+        if (query != null && limitNumber>0) {
           String search = query.element();
           //Handle wildcard with StrictMode condition 
           if(!strictMode && !search.endsWith("*")) {
