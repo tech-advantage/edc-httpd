@@ -1,6 +1,8 @@
 package fr.techad.edc.httpd.search;
 
 import fr.techad.edc.httpd.WebServerConfig;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -14,10 +16,14 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,8 +35,9 @@ import java.util.Map;
  */
 public class ContentSearcher extends ContentBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentSearcher.class);
-  private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE };
+  private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE};
   private static final Map<String, Float> BOOTS;
+  private final WebServerConfig webServerConfig; 
 
   static {
     Map<String, Float> aMap = new HashMap<>();
@@ -44,6 +51,7 @@ public class ContentSearcher extends ContentBase {
 
   public ContentSearcher(WebServerConfig webServerConfig) {
     super(webServerConfig);
+    this.webServerConfig=webServerConfig;
   }
 
   /**
@@ -54,16 +62,16 @@ public class ContentSearcher extends ContentBase {
    * @throws IOException    is an error is occurred to read indexed file
    * @throws ParseException if the search parameter is malformed
    */
-  public List<DocumentationSearchResult> search(String search) throws IOException, ParseException {
+  public List<DocumentationSearchResult> search(String search,String lang,int limit,boolean strict) throws IOException, ParseException {
     List<DocumentationSearchResult> results = new ArrayList<>();
     LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
+    
     Query query = qp.parse(search);
-
-    TopDocs hits = indexSearcher.search(query, 100);
+    TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
-
+    
     for (ScoreDoc sd : hits.scoreDocs) {
       Document d = indexSearcher.doc(sd.doc);
       DocumentationSearchResult documentationSearchResult = new DocumentationSearchResult();
@@ -75,8 +83,21 @@ public class ContentSearcher extends ContentBase {
       documentationSearchResult.setLanguageCode(d.get(DOC_LANGUAGE_CODE));
       documentationSearchResult.setUrl(d.get(DOC_URL));
       documentationSearchResult.setType(d.get(DOC_TYPE));
-      results.add(documentationSearchResult);
+      if(d.get(DOC_LANGUAGE_CODE).equals(lang) ) {//Returns only results match the lang
+        results.add(documentationSearchResult);
+      }else if(lang.equals("")) {//Return all results by default
+        results.add(documentationSearchResult);
+      }
+
+
     }
+    if(results.isEmpty() && hits.totalHits>0) {
+        //Relancer la recherche avec la default lang ?
+      String defaultLang=getdefaultlang();
+        if(!defaultLang.equals(lang)) {
+          return search(search, defaultLang, limit, strict);
+        }
+      }
     return results;
   }
 
@@ -87,4 +108,17 @@ public class ContentSearcher extends ContentBase {
       indexSearcher = new IndexSearcher(reader);
     }
   }
+  private String getdefaultlang() throws IOException {
+    File docFolder= new File(this.webServerConfig.getBase() + "/" + this.webServerConfig.getDocFolder() + "/");
+    File[] products = docFolder.listFiles(File::isDirectory);
+    String parsed = "";
+    if(!products[0].getName().equals("i18n")) {
+      parsed=FileUtils.readFileToString(new File(products[0].getCanonicalPath()+"/info.json"),StandardCharsets.UTF_8.name());
+    }else {
+      parsed=FileUtils.readFileToString(new File(products[1].getCanonicalPath()+"/info.json"),StandardCharsets.UTF_8.name());
+    }
+    JSONObject obj = new JSONObject(parsed);
+    return obj.getString("defaultLanguage");
+  }
+
 }

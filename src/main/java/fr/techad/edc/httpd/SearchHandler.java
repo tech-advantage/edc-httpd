@@ -6,6 +6,8 @@ import fr.techad.edc.httpd.search.DocumentationSearchResult;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +38,28 @@ public class SearchHandler implements HttpHandler {
         LOGGER.debug("Query Parameters: {}, Query: {}", queryParameters, exchange.getQueryString());
 
         Deque<String> query = queryParameters.get("query");
+        Deque<String> language = queryParameters.get("lang");        
+        Deque<String> limit = queryParameters.get("limit");
+        Deque<String> strict = queryParameters.get("strict");
+        Boolean strictMode = false;
+        String lang = "";
+        int limitNumber = 100;
+        if(strict != null && language != null && limit != null) {
+        strictMode = BooleanUtils.toBoolean(strict.element());
+        lang = language.element();
+        limitNumber = Integer.parseInt(limit.element());
+        }
+        
         byte[] bytes;
         if (query != null) {
-            String search = query.element();
+          String search = query.element();
+          //Handle wildcard with StrictMode condition 
+          if(!strictMode && !search.endsWith("*")) {
+            search = search+"*";
+          }
+
             ContentSearcher contentSearcher = new ContentSearcher(config);
-            List<DocumentationSearchResult> searchResults = contentSearcher.search(search);
+            List<DocumentationSearchResult> searchResults = contentSearcher.search(search,lang,limitNumber,strictMode);
             bytes = objectMapper.writeValueAsBytes(searchResults);
         } else {
             bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));
