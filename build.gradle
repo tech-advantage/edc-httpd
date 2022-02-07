@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 group 'fr.techad'
-version '1.3.0'
+version '2.0.0'
 sourceCompatibility = 1.8
 //Used to be able to add dependencies to jar
 configurations.implementation.setCanBeResolved(true)
