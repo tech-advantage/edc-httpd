@@ -48,9 +48,12 @@ public class SearchHandler implements HttpHandler {
     Boolean exactMode = false;
     String lang = "";
     int limitResults = 100;
-    if (exact != null && language != null && limit != null) {
+    if (exact != null ) {
       exactMode = BooleanUtils.toBoolean(exact.element());
+    }if(language != null){
       lang = language.element();
+    }
+    if(limit != null) {
       try {
         limitResults = Integer.valueOf(limit.element());
       } catch (NumberFormatException ex) {
