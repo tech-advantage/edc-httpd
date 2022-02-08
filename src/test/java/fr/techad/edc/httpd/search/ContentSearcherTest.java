@@ -20,7 +20,7 @@ public class ContentSearcherTest {
     WebServerConfig webServerConfig = new WebServerConfig();
     webServerConfig.setBase(file.getAbsolutePath());
     ContentSearcher contentSearcher = new ContentSearcher(webServerConfig);
-    List<DocumentationSearchResult> searchResults = contentSearcher.search("storehouse","", 100, true);
+    List<DocumentationSearchResult> searchResults = contentSearcher.search("storehouse","", 100, true,"");
     Assertions.assertEquals(11, searchResults.size());
 
     // check weight : first the query word in the label, then in the content
