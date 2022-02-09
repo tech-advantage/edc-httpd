@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -42,33 +44,21 @@ public class SearchHandler implements HttpHandler {
     LOGGER.debug("Query Parameters: {}, Query: {}", queryParameters, exchange.getQueryString());
 
     Deque<String> query = queryParameters.get("query");
-    Deque<String> language = queryParameters.get("lang");
-    Deque<String> limit = queryParameters.get("limit");
-    Deque<String> exact = queryParameters.get("exact");
-    Boolean exactMode = false;
-    String lang = "";
-    int limitResults = 100;
-    if (exact != null ) {
-      exactMode = BooleanUtils.toBoolean(exact.element());
-    }if(language != null){
-      lang = language.element();
-    }
-    if(limit != null) {
-      try {
-        limitResults = Integer.valueOf(limit.element());
-      } catch (NumberFormatException ex) {
-        LOGGER.debug("Limit is not a number, using this default limit :{}", limitResults);
-      }
-    }
 
+    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("exact-match",queryParameters));
+    String lang = getParamValue("lang",queryParameters);
+
+    int limitResults=100;
+    try {                                                                                
+      limitResults = Integer.valueOf(getParamValue("limit",queryParameters));                                   
+    } catch (NumberFormatException ex) {
+      LOGGER.error("Limit is not a number, using this default limit :{}", limitResults);
+    }
     byte[] bytes;
     if (query != null && limitResults > 0) {
       String search = query.element();
-      
-
-
       ContentSearcher contentSearcher = new ContentSearcher(config);
-      List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMode,getDefaultLanguage());
+      List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,getDefaultLanguage());
       bytes = objectMapper.writeValueAsBytes(searchResults);
     } else {
       bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));
@@ -81,14 +71,19 @@ public class SearchHandler implements HttpHandler {
     File docFolder = new File(this.config.getBase() + "/" + this.config.getDocFolder() + "/");
     File[] products = docFolder.listFiles(File::isDirectory);
     String parsed = "";
-    if (!products[0].getName().equals("i18n")) {
-      parsed = FileUtils.readFileToString(new File(products[0].getCanonicalPath() + "/info.json"),
-          StandardCharsets.UTF_8.name());
-    } else {
-      parsed = FileUtils.readFileToString(new File(products[1].getCanonicalPath() + "/info.json"),
-          StandardCharsets.UTF_8.name());
-    }
+    Optional<File> product =  Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
+    parsed = FileUtils.readFileToString(new File(product.get().getCanonicalPath() + "/info.json"),
+        StandardCharsets.UTF_8.name());
     JSONObject obj = new JSONObject(parsed);
     return obj.getString("defaultLanguage");
+  }
+  
+  private String getParamValue(String parameterName,Map<String, Deque<String>> queryParameters) {
+    Deque<String> param = queryParameters.get(parameterName);
+    if (param != null ) {
+      return param.element();
+    }else {
+      return "";
+      }
   }
 }
