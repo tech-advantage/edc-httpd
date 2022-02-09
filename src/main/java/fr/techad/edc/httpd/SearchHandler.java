@@ -45,12 +45,12 @@ public class SearchHandler implements HttpHandler {
 
     Deque<String> query = queryParameters.get("query");
 
-    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("exact-match",queryParameters));
-    String lang = getParamValue("lang",queryParameters);
+    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("exact-match", queryParameters));
+    String lang = getParamValue("lang", queryParameters);
 
-    int limitResults=100;
-    try {                                                                                
-      limitResults = Integer.valueOf(getParamValue("limit",queryParameters));                                   
+    int limitResults = 100;
+    try {
+      limitResults = Integer.valueOf(getParamValue("limit", queryParameters));
     } catch (NumberFormatException ex) {
       LOGGER.error("Limit is not a number, using this default limit :{}", limitResults);
     }
@@ -58,7 +58,8 @@ public class SearchHandler implements HttpHandler {
     if (query != null && limitResults > 0) {
       String search = query.element();
       ContentSearcher contentSearcher = new ContentSearcher(config);
-      List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,getDefaultLanguage());
+      List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,
+          getDefaultLanguage());
       bytes = objectMapper.writeValueAsBytes(searchResults);
     } else {
       bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));
@@ -66,24 +67,24 @@ public class SearchHandler implements HttpHandler {
     exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
     exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
   }
-  
+
   private String getDefaultLanguage() throws IOException {
     File docFolder = new File(this.config.getBase() + "/" + this.config.getDocFolder() + "/");
     File[] products = docFolder.listFiles(File::isDirectory);
     String parsed = "";
-    Optional<File> product =  Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
+    Optional<File> product = Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
     parsed = FileUtils.readFileToString(new File(product.get().getCanonicalPath() + "/info.json"),
         StandardCharsets.UTF_8.name());
     JSONObject obj = new JSONObject(parsed);
     return obj.getString("defaultLanguage");
   }
-  
-  private String getParamValue(String parameterName,Map<String, Deque<String>> queryParameters) {
+
+  private String getParamValue(String parameterName, Map<String, Deque<String>> queryParameters) {
     Deque<String> param = queryParameters.get(parameterName);
-    if (param != null ) {
+    if (param != null) {
       return param.element();
-    }else {
+    } else {
       return "";
-      }
+    }
   }
 }

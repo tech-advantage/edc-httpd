@@ -69,7 +69,7 @@ public class ContentSearcher extends ContentBase {
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
     String langSearch = "";
     if (StringUtils.isNotBlank(lang)) {
-      langSearch = " AND languageCode:"+lang;
+      langSearch = " AND languageCode:" + lang;
     }
     Query query = qp.parse(search + langSearch);
     TopDocs hits = indexSearcher.search(query, limit);
