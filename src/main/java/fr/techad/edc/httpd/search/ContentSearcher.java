@@ -31,7 +31,7 @@ import fr.techad.edc.httpd.WebServerConfig;
  */
 public class ContentSearcher extends ContentBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentSearcher.class);
-  private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE};
+  private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE };
   private static final Map<String, Float> BOOTS;
 
   static {
@@ -56,10 +56,10 @@ public class ContentSearcher extends ContentBase {
    * @throws IOException    is an error is occurred to read indexed file
    * @throws ParseException if the search parameter is malformed
    */
-  public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean strict,String defaultLanguage)
-      throws IOException, ParseException {
- // Handle wildcard with exacttMode condition
-    if (!strict && !search.endsWith("*")) {
+  public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
+      String defaultLanguage) throws IOException, ParseException {
+    // Handle wildcard with exacttMode condition
+    if (!exact && !search.endsWith("*")) {
       search = search + "*";
     }
 
@@ -67,10 +67,11 @@ public class ContentSearcher extends ContentBase {
     LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
-    Query query = qp.parse(search);
-    if(!StringUtils.isBlank(lang)) {
-      query = qp.parse(search + " AND languageCode:"+lang);
+    String langSearch = "";
+    if (StringUtils.isNotBlank(lang)) {
+      langSearch = " AND languageCode:"+lang;
     }
+    Query query = qp.parse(search + langSearch);
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
@@ -91,7 +92,7 @@ public class ContentSearcher extends ContentBase {
     if (results.isEmpty()) {
       // Relancer la recherche avec la default lang ?
       if (!defaultLanguage.equals(lang)) {
-        return search(search, defaultLanguage, limit, strict,defaultLanguage);
+        return search(search, defaultLanguage, limit, exact, defaultLanguage);
       }
     }
     return results;
@@ -104,7 +105,5 @@ public class ContentSearcher extends ContentBase {
       indexSearcher = new IndexSearcher(reader);
     }
   }
-
-
 
 }
