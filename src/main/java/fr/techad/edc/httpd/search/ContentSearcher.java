@@ -1,6 +1,13 @@
 package fr.techad.edc.httpd.search;
 
-import fr.techad.edc.httpd.WebServerConfig;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -17,12 +24,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import fr.techad.edc.httpd.WebServerConfig;
 
 /**
  * TECH ADVANTAGE All right reserved Created by cochon on 24/04/2018.
@@ -54,14 +56,23 @@ public class ContentSearcher extends ContentBase {
    * @throws IOException    is an error is occurred to read indexed file
    * @throws ParseException if the search parameter is malformed
    */
-  public List<DocumentationSearchResult> search(String search) throws IOException, ParseException {
+  public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
+      String defaultLanguage) throws IOException, ParseException {
+    // Handle wildcard with exacttMode condition
+    if (!exact && !search.endsWith("*")) {
+      search = search + "*";
+    }
+
     List<DocumentationSearchResult> results = new ArrayList<>();
     LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
-    Query query = qp.parse(search);
-
-    TopDocs hits = indexSearcher.search(query, 100);
+    String langSearch = "";
+    if (StringUtils.isNotBlank(lang)) {
+      langSearch = " AND languageCode:" + lang;
+    }
+    Query query = qp.parse(search + langSearch);
+    TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
     for (ScoreDoc sd : hits.scoreDocs) {
@@ -76,6 +87,10 @@ public class ContentSearcher extends ContentBase {
       documentationSearchResult.setUrl(d.get(DOC_URL));
       documentationSearchResult.setType(d.get(DOC_TYPE));
       results.add(documentationSearchResult);
+
+    }
+    if (results.isEmpty() && !defaultLanguage.equals(lang)) {
+      return search(search, defaultLanguage, limit, exact, defaultLanguage);
     }
     return results;
   }
@@ -87,4 +102,5 @@ public class ContentSearcher extends ContentBase {
       indexSearcher = new IndexSearcher(reader);
     }
   }
+
 }

@@ -30,7 +30,7 @@ You can pull it from the central Maven repositories:
 ```groovy
     implementation 'fr.techad:edc-httpd-java:1.2.0'
 ```
-## How can create and run a docker image?
+## How can I create and run a docker image?
 You have just to use this two commands in the repository, -v parameter is optional for the second command
 ```Shell
 docker build -t edc .
@@ -40,7 +40,11 @@ docker run -p 8088:8088 -v [hostPath]:/home edc
 ## How can I search keyword in the content?
 
 Use the web service : `/httpd/api/search?query=YourQuery`.
-
+There are other optional parameters for this request :
+- lang to search the results match with specified lang
+- strict to specify if search is an exact search
+- limit to set a limit of search results
+You can see an example with those parameters below.
 The query is based on [Lucene](https://lucene.apache.org/). So you can create complex query with the lucene syntax query.
 
 The wildcard is supported.
@@ -53,6 +57,7 @@ The query `/httpd/api/search?query=httpd AND server` returns help documentations
 
 The query `/httpd/api/search?query=http*` returns help documentations which contain the words which start with `http`.
 
+The quer  `http://localhost:8088/httpd/api/search?query=read&lang=en&strict=true&limit=20` returns all results for the exact search read in the language "en"
 ## How can I reindex the content?
 
 Use the web service : `/httpd/api/reindex`.
@@ -73,19 +78,21 @@ Then you put your file like the example below.
 
 **Example**
 ```Shell
-   curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload
+   curl -H "Cache-Control: no-cache, no-store, must-revalidate, max-age=0" -H "Pragma: no-cache" -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload
 ```
 
 By default this upload will not override the i18n folder. To override it you have to put the parameter Overridei18n=true after the URL like this :
 ```Shell
-   curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload?Overridei18n=true
+   curl -H "Cache-Control: no-cache, no-store, must-revalidate, max-age=0" -H "Pragma: no-cache" -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload?Overridei18n=true
 ```
+Be careful if your client keep the cache, upload modifications will not appear on your client. To resolve this problem just clear your client cache.
+Using cURL is only possible in a UNIX terminal!
 ## Configuration
 
 ### Define the path
 
 In the `src/main/java/resources` folder, create the file: `webserver.yml`.
-Define the `base`variable to define the path to the published documentation.
+Define the `base` variable to define the path to the published documentation.
 
 ```yaml
 base: /local/edc-httpd/html
@@ -94,11 +101,14 @@ base: /local/edc-httpd/html
 By default, the indexed content is stored in the folder `.edc/index` in the home user. It is possible to override this value with the variable `indexPath`.
 It is possible to activate an extra url to reindex the content on demand with the variable `indexUrlEnabled`. By default, this url is disabled. To reindex the content, call the url: `/httpd/api/reindex`.
 
+Furthermore for upload operations it's recommanded to set a `requestMaxSize` to avoid some upload errors when uploading large files.
+
 *Example*
 
 ```yaml
 base: /local/edc-httpd/html
 indexPath: /local/edc-httpd/.edc
+requestMaxSize: 1GB
 indexUrlEnabled: true
 ```
 
