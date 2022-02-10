@@ -73,10 +73,13 @@ public class SearchHandler implements HttpHandler {
     File[] products = docFolder.listFiles(File::isDirectory);
     String parsed = "";
     Optional<File> product = Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
+    if(product.isPresent()){
     parsed = FileUtils.readFileToString(new File(product.get().getCanonicalPath() + "/info.json"),
         StandardCharsets.UTF_8.name());
     JSONObject obj = new JSONObject(parsed);
     return obj.getString("defaultLanguage");
+    }
+    return "";
   }
 
   private String getParamValue(String parameterName, Map<String, Deque<String>> queryParameters) {
