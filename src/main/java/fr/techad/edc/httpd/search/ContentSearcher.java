@@ -89,11 +89,8 @@ public class ContentSearcher extends ContentBase {
       results.add(documentationSearchResult);
 
     }
-    if (results.isEmpty()) {
-      // Relancer la recherche avec la default lang ?
-      if (!defaultLanguage.equals(lang)) {
-        return search(search, defaultLanguage, limit, exact, defaultLanguage);
-      }
+    if (results.isEmpty() && !defaultLanguage.equals(lang)) {
+      return search(search, defaultLanguage, limit, exact, defaultLanguage);
     }
     return results;
   }
