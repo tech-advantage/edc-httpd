@@ -61,9 +61,9 @@ The query `/httpd/api/search?query=http*` returns help documentations which cont
 
 The query  `http://localhost:8088/httpd/api/search?query=read&lang=en&exact-match=true&limit=20` returns all results for the exact search read in the language "en" with a limit of 20 results.
 
-Those others parameters are independant you can use one of them only :
-`http://localhost:8088/httpd/api/search?query=read&lang=en` (Only results in en language)
-`http://localhost:8088/httpd/api/search?query=read&exact-match=true` (Exact search of read)
+Those others parameters are independant you can use one of them only :\
+`http://localhost:8088/httpd/api/search?query=read&lang=en` (Only results in en language)\
+`http://localhost:8088/httpd/api/search?query=read&exact-match=true` (Exact search of read)\
 `http://localhost:8088/httpd/api/search?query=read&limit=20` (results limited by 20)
 ## How can I reindex the content?
 
