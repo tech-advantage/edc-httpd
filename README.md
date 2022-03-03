@@ -43,19 +43,19 @@ The query is based on [Lucene](https://lucene.apache.org/). So you can create co
 
 Use the web service : `/httpd/api/search?query=YourQuery`.
 There are other optional parameters for this request :
-- lang to search the results match with specified lang
-- exact-match to specify if search is an exact search
-- limit to set a limit of search results
-You can see an example with those parameters below.\
+- _lang_ to search the results match with specified lang
+- _exact-match_ to specify if search is an exact word search
+- _limit_ to set a limit of search results\
 
+You can see an example with those parameters below.
 
-The wildcard is supported.
+The wildcard ( `*` ) is supported.
 
 *Example*
 
-The query: `/httpd/api/search?query=httpd` returns help documentations which contain the word `httpd`.
+The query: `/httpd/api/search?query=httpd` returns help documentations which contain the words which start by `httpd`.
 
-The query `/httpd/api/search?query=httpd AND server` returns help documentations which contain the words `httpd` *AND* `server`.
+The query `/httpd/api/search?query=httpd AND server` returns help documentations which contain the words which start by `httpd` *AND* `server`.
 
 The query `/httpd/api/search?query=http*` returns help documentations which contain the words which start with `http`.
 
@@ -63,7 +63,8 @@ The query  `http://localhost:8088/httpd/api/search?query=read&lang=en&exact-matc
 
 Those others parameters are independant you can use one of them only :\
 `http://localhost:8088/httpd/api/search?query=read&lang=en` (Only results in en language)\
-`http://localhost:8088/httpd/api/search?query=read&exact-match=true` (Exact search of read)\
+`http://localhost:8088/httpd/api/search?query=read&exact-match=true` (Exact search of `read`)\
+`http://localhost:8088/httpd/api/search?query=rea&exact-match=false` (Search of all words begin by `rea`)\
 `http://localhost:8088/httpd/api/search?query=read&limit=20` (results limited by 20)
 ## How can I reindex the content?
 
