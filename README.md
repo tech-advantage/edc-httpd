@@ -11,7 +11,7 @@ The search is done only in the document and chapter. The bricks are ignored.
 
 ## edc Version
 
-Current release is compatible with edc v2.2+
+Current release is compatible with edc v3.2+
 
 ## How can I get the latest release?
 
