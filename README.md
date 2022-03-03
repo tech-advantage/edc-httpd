@@ -22,13 +22,13 @@ You can pull it from the central Maven repositories:
 <dependency>
   <groupId>fr.techad</groupId>
   <artifactId>edc-httpd-java</artifactId>
-  <version>1.2.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-    implementation 'fr.techad:edc-httpd-java:1.2.0'
+    implementation 'fr.techad:edc-httpd-java:2.0.0'
 ```
 ## How can I create and run a docker image?
 You have just to use this two commands in the repository, -v parameter is optional for the second command
@@ -38,14 +38,16 @@ docker run -p 8088:8088 -v [hostPath]:/home edc
 ```
 
 ## How can I search keyword in the content?
+The query is based on [Lucene](https://lucene.apache.org/). So you can create complex query with the lucene syntax query.
+
 
 Use the web service : `/httpd/api/search?query=YourQuery`.
 There are other optional parameters for this request :
 - lang to search the results match with specified lang
-- strict to specify if search is an exact search
+- exact-match to specify if search is an exact search
 - limit to set a limit of search results
-You can see an example with those parameters below.
-The query is based on [Lucene](https://lucene.apache.org/). So you can create complex query with the lucene syntax query.
+You can see an example with those parameters below.\
+
 
 The wildcard is supported.
 
@@ -57,7 +59,12 @@ The query `/httpd/api/search?query=httpd AND server` returns help documentations
 
 The query `/httpd/api/search?query=http*` returns help documentations which contain the words which start with `http`.
 
-The quer  `http://localhost:8088/httpd/api/search?query=read&lang=en&strict=true&limit=20` returns all results for the exact search read in the language "en"
+The query  `http://localhost:8088/httpd/api/search?query=read&lang=en&exact-match=true&limit=20` returns all results for the exact search read in the language "en" with a limit of 20 results.
+
+Those others parameters are independant you can use one of them only :
+`http://localhost:8088/httpd/api/search?query=read&lang=en` (Only results in en language)
+`http://localhost:8088/httpd/api/search?query=read&exact-match=true` (Exact search of read)
+`http://localhost:8088/httpd/api/search?query=read&limit=20` (results limited by 20)
 ## How can I reindex the content?
 
 Use the web service : `/httpd/api/reindex`.
@@ -78,12 +85,12 @@ Then you put your file like the example below.
 
 **Example**
 ```Shell
-   curl -H "Cache-Control: no-cache, no-store, must-revalidate, max-age=0" -H "Pragma: no-cache" -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload
+   curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload
 ```
 
 By default this upload will not override the i18n folder. To override it you have to put the parameter Overridei18n=true after the URL like this :
 ```Shell
-   curl -H "Cache-Control: no-cache, no-store, must-revalidate, max-age=0" -H "Pragma: no-cache" -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload?Overridei18n=true
+   curl -H "Edc-Token: [token]" -v -F data='@/[filepath]' http://localhost:8088/httpd/api/upload?Overridei18n=true
 ```
 Be careful if your client keep the cache, upload modifications will not appear on your client. To resolve this problem just clear your client cache.
 Using cURL is only possible in a UNIX terminal!
