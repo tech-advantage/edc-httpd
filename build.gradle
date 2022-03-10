@@ -77,7 +77,8 @@ publishing {
             //Creating the pom
             pom {
                 name = 'edc httpd'
-                description = 'Embedded httpd server to serve the help documentation published by edc'
+                description = 'Embedded httpd server to serve the help documentation published by edc
+                It is built with a jdk 11.'
                 url = 'https://www.easydoccontents.com'
                 licenses {
                     license {
