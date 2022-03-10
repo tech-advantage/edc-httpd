@@ -4,11 +4,15 @@ plugins {
     id 'signing'
 }
 group 'fr.techad'
-version '2.0.0'
+version '2.0.1'
 sourceCompatibility = 1.8
+ext.withDependencies=project.hasProperty('withDependencies')
 //Used to be able to add dependencies to jar
+if(withDependencies){
 configurations.implementation.setCanBeResolved(true)
 configurations.api.setCanBeResolved(true)
+}
+
 
 
 java {
@@ -40,12 +44,16 @@ dependencies {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes(
+        if(withDependencies){
+         attributes(
                 'Main-Class': 'fr.techad.edc.httpd.EdcWebServer'
-        )
+         )
+        }
     }
 from {
-    configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    if(withDependencies){
+        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    }
   }
 }
 //Execute Junit tests
@@ -89,9 +97,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/tech-advantage/edc-httpd-java.git'
-                    developerConnection = 'scm:git:ssh://github.com/tech-advantage/edc-httpd-java.git'
-                    url = 'https://github.com/tech-advantage/edc-httpd-java'
+                    connection = 'scm:git:git://github.com/tech-advantage/edc-httpd.git'
+                    developerConnection = 'scm:git:ssh://github.com/tech-advantage/edc-httpd.git'
+                    url = 'https://github.com/tech-advantage/edc-httpd'
                 }
             }
         }

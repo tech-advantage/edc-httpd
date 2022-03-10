@@ -22,13 +22,13 @@ You can pull it from the central Maven repositories:
 <dependency>
   <groupId>fr.techad</groupId>
   <artifactId>edc-httpd</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-    implementation 'fr.techad:edc-httpd:2.0.0'
+    implementation 'fr.techad:edc-httpd:2.0.1'
 ```
 ## How can I create and run a docker image?
 You have just to use this two commands in the repository, -v parameter is optional for the second command
