@@ -11,7 +11,7 @@ The search is done only in the document and chapter. The bricks are ignored.
 
 ## edc Version
 
-Current release is compatible with edc v3.2+
+Current release is compatible with edc v3.2+ and it's built with Java 11
 
 ## How can I get the latest release?
 
@@ -22,13 +22,13 @@ You can pull it from the central Maven repositories:
 <dependency>
   <groupId>fr.techad</groupId>
   <artifactId>edc-httpd</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-    implementation 'fr.techad:edc-httpd:2.0.0'
+    implementation 'fr.techad:edc-httpd:2.0.1'
 ```
 ## How can I create and run a docker image?
 You have just to use this two commands in the repository, -v parameter is optional for the second command
