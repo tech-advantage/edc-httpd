@@ -15,7 +15,7 @@ Current release is compatible with edc v3.2+ and it's built with Java 11
 
 ## How can I get the latest release?
 
-You can pull it from the central Maven repositories(without dependencies included):
+You can pull it from the central [Maven repositories](https://mvnrepository.com/artifact/fr.techad/edc-httpd) (without dependencies included):
 ### Maven
 ```xml
 <dependency>
@@ -29,7 +29,7 @@ You can pull it from the central Maven repositories(without dependencies include
 ```groovy
     implementation 'fr.techad:edc-httpd:2.0.1'
 ```
-Also you can get it on releases page on github(with dependencies included)
+Also you can get it on releases page on [releases page](https://github.com/tech-advantage/edc-httpd/releases) (with dependencies included)
 
 ## How can I create and run a docker image?
 You have just to use this two commands in the repository, -v parameter is optional for the second command
