@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -15,6 +16,13 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.highlight.SpanGradientFormatter;
+import org.apache.lucene.search.highlight.Fragmenter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
+import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -43,6 +51,7 @@ public class ContentSearcher extends ContentBase {
   }
 
   private IndexSearcher indexSearcher;
+  private IndexReader reader;
 
   public ContentSearcher(WebServerConfig webServerConfig) {
     super(webServerConfig);
@@ -57,7 +66,7 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage) throws IOException, ParseException {
+      String defaultLanguage) throws IOException, ParseException, InvalidTokenOffsetsException {
     // Handle wildcard with exacttMode condition
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
@@ -75,19 +84,28 @@ public class ContentSearcher extends ContentBase {
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
+    SpanGradientFormatter formatter = new SpanGradientFormatter(0, null, null, "#FFFFFF", "#FFF2A8");
+    QueryScorer labelScorer = new QueryScorer(query, DOC_LABEL);
+    Fragmenter labelFragmenter = new SimpleSpanFragmenter(labelScorer, 10);
+    Highlighter labelHighlighter = new Highlighter(formatter, labelScorer);
+    labelHighlighter.setTextFragmenter(labelFragmenter);
+
     for (ScoreDoc sd : hits.scoreDocs) {
       Document d = indexSearcher.doc(sd.doc);
+      String label = d.get(DOC_LABEL);
+      TokenStream labelTokenStream = TokenSources.getAnyTokenStream(reader,
+              sd.doc, DOC_LABEL, d, new StandardAnalyzer());
+      String labelFragment = labelHighlighter.getBestFragment(labelTokenStream, label);
       DocumentationSearchResult documentationSearchResult = new DocumentationSearchResult();
       String idStr = d.get(DOC_ID);
       documentationSearchResult.setId(Long.valueOf(idStr));
-      documentationSearchResult.setLabel(d.get(DOC_LABEL));
+      documentationSearchResult.setLabel(labelFragment != null ? labelFragment : d.get(DOC_LABEL));
       documentationSearchResult.setStrategyId(Long.valueOf(d.get(DOC_STRATEGY_ID)));
       documentationSearchResult.setStrategyLabel(d.get(DOC_STRATEGY_LABEL));
       documentationSearchResult.setLanguageCode(d.get(DOC_LANGUAGE_CODE));
       documentationSearchResult.setUrl(d.get(DOC_URL));
       documentationSearchResult.setType(d.get(DOC_TYPE));
       results.add(documentationSearchResult);
-
     }
     if (results.isEmpty() && !defaultLanguage.equals(lang)) {
       return search(search, defaultLanguage, limit, exact, defaultLanguage);
@@ -98,7 +116,7 @@ public class ContentSearcher extends ContentBase {
   private void createSearcher() throws IOException {
     if (indexSearcher == null) {
       Directory dir = FSDirectory.open(getIndexPath());
-      IndexReader reader = DirectoryReader.open(dir);
+      reader = DirectoryReader.open(dir);
       indexSearcher = new IndexSearcher(reader);
     }
   }
