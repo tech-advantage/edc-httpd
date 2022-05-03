@@ -16,6 +16,7 @@ public class DocumentationSearchResult {
     private String languageCode;
     private String url;
     private String type;
+    private String highlightContent;
 
 
     public Long getId() {
@@ -58,6 +59,14 @@ public class DocumentationSearchResult {
         this.languageCode = languageCode;
     }
 
+    public String getHighlightContent() {
+        return highlightContent;
+    }
+
+    public void setHighlightContent(String highlightContent) {
+        this.highlightContent = highlightContent;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -81,6 +90,7 @@ public class DocumentationSearchResult {
                 .append("label", label)
                 .append("strategyId", strategyId)
                 .append("strategyLabel", strategyLabel)
+                .append("content", highlightContent)
                 .append("languageCode", languageCode)
                 .append("url", url)
                 .append("type", type)

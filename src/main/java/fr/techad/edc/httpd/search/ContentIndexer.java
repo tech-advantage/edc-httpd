@@ -155,6 +155,7 @@ public class ContentIndexer extends ContentBase {
     document.add(new TextField(DOC_TYPE, type, Field.Store.YES));
     document.add(new TextField(DOC_STRATEGY_LABEL, strategyLabel, Field.Store.YES));
     document.add(new TextField(DOC_LABEL, label, Field.Store.YES));
+    document.add(new TextField(DOC_CONTENT, Jsoup.parse(new File(docBase + "/" + fileName), "UTF-8").text(), Field.Store.YES));
     if (type.equals("DOCUMENT")) {
       org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(new File(docBase + "/" + fileName), "UTF-8");
       String content = jsoupDoc.text();

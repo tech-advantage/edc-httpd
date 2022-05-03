@@ -73,7 +73,6 @@ public class ContentSearcher extends ContentBase {
     }
 
     List<DocumentationSearchResult> results = new ArrayList<>();
-    LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
     String langSearch = "";
@@ -84,18 +83,32 @@ public class ContentSearcher extends ContentBase {
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
-    SpanGradientFormatter formatter = new SpanGradientFormatter(0, null, null, "#FFFFFF", "#FFF2A8");
+    SpanGradientFormatter formatter = new SpanGradientFormatter(0, null, null, "#FFFFFF", "#fff2a8");
+
     QueryScorer labelScorer = new QueryScorer(query, DOC_LABEL);
-    Fragmenter labelFragmenter = new SimpleSpanFragmenter(labelScorer, 10);
+    Fragmenter labelFragmenter = new SimpleSpanFragmenter(labelScorer);
     Highlighter labelHighlighter = new Highlighter(formatter, labelScorer);
     labelHighlighter.setTextFragmenter(labelFragmenter);
+
+    QueryScorer contentScorer = new QueryScorer(query, DOC_CONTENT);
+    Fragmenter contentFragmenter = new SimpleSpanFragmenter(contentScorer, search.length());
+    Highlighter contentHighlighter = new Highlighter(formatter, contentScorer);
+    contentHighlighter.setTextFragmenter(contentFragmenter);
 
     for (ScoreDoc sd : hits.scoreDocs) {
       Document d = indexSearcher.doc(sd.doc);
       String label = d.get(DOC_LABEL);
+      String content = d.get(DOC_CONTENT);
+
       TokenStream labelTokenStream = TokenSources.getAnyTokenStream(reader,
-              sd.doc, DOC_LABEL, d, new StandardAnalyzer());
+                sd.doc, DOC_LABEL, d, new StandardAnalyzer());
+
+      TokenStream contentTokenStream = TokenSources.getAnyTokenStream(reader,
+              sd.doc, DOC_CONTENT, d, new StandardAnalyzer());
+
       String labelFragment = labelHighlighter.getBestFragment(labelTokenStream, label);
+      String contentFragment = contentHighlighter.getBestFragment(contentTokenStream, content);
+
       DocumentationSearchResult documentationSearchResult = new DocumentationSearchResult();
       String idStr = d.get(DOC_ID);
       documentationSearchResult.setId(Long.valueOf(idStr));
@@ -104,12 +117,14 @@ public class ContentSearcher extends ContentBase {
       documentationSearchResult.setStrategyLabel(d.get(DOC_STRATEGY_LABEL));
       documentationSearchResult.setLanguageCode(d.get(DOC_LANGUAGE_CODE));
       documentationSearchResult.setUrl(d.get(DOC_URL));
+      documentationSearchResult.setHighlightContent(contentFragment != null ? contentFragment : "");
       documentationSearchResult.setType(d.get(DOC_TYPE));
       results.add(documentationSearchResult);
     }
     if (results.isEmpty() && !defaultLanguage.equals(lang)) {
       return search(search, defaultLanguage, limit, exact, defaultLanguage);
     }
+
     return results;
   }
 
