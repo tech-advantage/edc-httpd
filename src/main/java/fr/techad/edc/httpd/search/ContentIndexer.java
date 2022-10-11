@@ -97,7 +97,7 @@ public class ContentIndexer extends ContentBase {
     File tocXJsonFile = new File(productFolder + tocReference.getFile());
     if (tocXJsonFile.exists()) {
       FileInputStream fileInputStream = FileUtils.openInputStream(tocXJsonFile);
-      String content = IOUtils.toString(fileInputStream, Charset.defaultCharset());
+      String content = IOUtils.toString(fileInputStream, Charset.forName("UTF-8"));
       fileInputStream.close();
       ObjectMapper mapper = new ObjectMapper();
       JsonNode actualObj = mapper.readTree(content);
