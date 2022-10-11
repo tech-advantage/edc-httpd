@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -69,10 +68,8 @@ public class SearchHandler implements HttpHandler {
   }
 
   private String getDefaultLanguage() throws IOException {
-    File docFolder = new File(this.config.getBase() + "/" + this.config.getDocFolder() + "/");
-    File[] products = docFolder.listFiles(File::isDirectory);
-    String parsed = "";
-    Optional<File> product = Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
+    Optional<File> product = ContentSearcher.getProduct(this.config);
+    String parsed;
     if (product.isPresent()) {
       parsed = FileUtils.readFileToString(new File(product.get().getCanonicalPath() + "/info.json"),
           StandardCharsets.UTF_8.name());

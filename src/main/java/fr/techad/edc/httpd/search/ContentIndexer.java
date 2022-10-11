@@ -97,7 +97,7 @@ public class ContentIndexer extends ContentBase {
     File tocXJsonFile = new File(productFolder + tocReference.getFile());
     if (tocXJsonFile.exists()) {
       FileInputStream fileInputStream = FileUtils.openInputStream(tocXJsonFile);
-      String content = IOUtils.toString(fileInputStream, Charset.defaultCharset());
+      String content = IOUtils.toString(fileInputStream, Charset.forName("UTF-8"));
       fileInputStream.close();
       ObjectMapper mapper = new ObjectMapper();
       JsonNode actualObj = mapper.readTree(content);
@@ -136,6 +136,7 @@ public class ContentIndexer extends ContentBase {
       if (topics.isArray()) {
         topics.forEach(topicsQueue::add);
       }
+      System.out.println(topic + " topic acece");
       indexTopic(strategyId, languageCode, strategyLabel, topic);
     }
   }
@@ -147,7 +148,7 @@ public class ContentIndexer extends ContentBase {
     String type = topicNode.get("type").asText("CHAPTER");
     String fileName = topicNode.get("url").asText();
     LOGGER.debug("Help document to index: id: {}, label: {}, url: {}, type: {}", id, label, fileName, type);
-
+    System.out.println(label + " les label avecaccent");
     Document document = new Document();
     document.add(new StringField(DOC_ID, id, Field.Store.YES));
     document.add(new StringField(DOC_STRATEGY_ID, strategyId.toString(), Field.Store.YES));
@@ -156,8 +157,9 @@ public class ContentIndexer extends ContentBase {
     document.add(new TextField(DOC_STRATEGY_LABEL, strategyLabel, Field.Store.YES));
     document.add(new TextField(DOC_LABEL, label, Field.Store.YES));
     if (type.equals("DOCUMENT")) {
-      org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(new File(docBase + "/" + fileName), "UTF-8");
+      org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(new File(docBase + "/" + fileName), Charset.forName("UTF-8").name());
       String content = jsoupDoc.text();
+
       document.add(new TextField(DOC_CONTENT, content, Field.Store.YES));
     }
     document.add(new TextField(DOC_URL, fileName, Field.Store.YES));
