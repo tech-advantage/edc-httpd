@@ -70,11 +70,12 @@ public class ContentSearcher extends ContentBase {
     LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
+    qp.setAllowLeadingWildcard(true);
     String langSearch = "";
     if (StringUtils.isNotBlank(lang)) {
       langSearch = " AND languageCode:" + lang;
     }
-    Query query = qp.parse(QueryParserBase.escape(search) + langSearch);
+    Query query = qp.parse(search + langSearch);
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 

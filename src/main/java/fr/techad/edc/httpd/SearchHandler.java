@@ -44,12 +44,12 @@ public class SearchHandler implements HttpHandler {
 
     Deque<String> query = queryParameters.get("query");
 
-    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("exact-match", queryParameters));
+    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("match-whole-word", queryParameters));
     String lang = getParamValue("lang", queryParameters);
 
     int limitResults = 100;
     try {
-      limitResults = Integer.valueOf(getParamValue("limit", queryParameters));
+      limitResults = Integer.valueOf(getParamValue("max-result-number", queryParameters));
     } catch (NumberFormatException ex) {
       LOGGER.error("Limit is not a number, using this default limit :{}", limitResults);
     }
