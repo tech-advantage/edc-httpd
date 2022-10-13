@@ -1,12 +1,11 @@
 package fr.techad.edc.httpd.search;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -15,12 +14,14 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ public class ContentSearcher extends ContentBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentSearcher.class);
   private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE };
   private static final Map<String, Float> BOOTS;
+  private final WebServerConfig config;
 
   static {
     Map<String, Float> aMap = new HashMap<>();
@@ -46,6 +48,7 @@ public class ContentSearcher extends ContentBase {
 
   public ContentSearcher(WebServerConfig webServerConfig) {
     super(webServerConfig);
+    this.config = webServerConfig;
   }
 
   /**
@@ -57,7 +60,7 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage) throws IOException, ParseException {
+                                                String defaultLanguage) throws IOException, ParseException {
     // Handle wildcard with exacttMode condition
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
@@ -67,11 +70,12 @@ public class ContentSearcher extends ContentBase {
     LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
+    qp.setAllowLeadingWildcard(true);
     String langSearch = "";
     if (StringUtils.isNotBlank(lang)) {
       langSearch = " AND languageCode:" + lang;
     }
-    Query query = qp.parse(search + langSearch);
+    Query query = qp.parse(QueryParserBase.escape(search) + langSearch);
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
@@ -89,10 +93,35 @@ public class ContentSearcher extends ContentBase {
       results.add(documentationSearchResult);
 
     }
-    if (results.isEmpty() && !defaultLanguage.equals(lang)) {
+    if (results.isEmpty() && !defaultLanguage.equals(lang) && checkLanguageIsPresent(lang) == false) {
       return search(search, defaultLanguage, limit, exact, defaultLanguage);
     }
     return results;
+  }
+
+  private boolean checkLanguageIsPresent(String lang) throws IOException {
+    Optional<File> product = getProduct(this.config);
+    String parsed;
+    if (product.isPresent()) {
+      parsed = FileUtils.readFileToString(new File(product.get().getCanonicalPath() + "/info.json"),
+              StandardCharsets.UTF_8.name());
+      JSONObject obj = new JSONObject(parsed);
+      String languages = obj.get("languages").toString();
+      List<String> nameList = new LinkedList<String>();
+      nameList.add(obj.get("languages").toString());
+
+      return languages.contains(lang);
+    }
+    return false;
+  }
+
+  public static Optional<File> getProduct(WebServerConfig config) {
+    File docFolder = new File(config.getBase() + "/" + config.getDocFolder() + "/");
+    File[] products = docFolder.listFiles(File::isDirectory);
+    String parsed = "";
+    Optional<File> product = Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
+
+    return product;
   }
 
   private void createSearcher() throws IOException {
