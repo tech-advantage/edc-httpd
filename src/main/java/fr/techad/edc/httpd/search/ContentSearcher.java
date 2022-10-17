@@ -3,7 +3,7 @@ package fr.techad.edc.httpd.search;
 import java.io.IOException;
 import java.util.*;
 
-import fr.techad.edc.httpd.utils.LanguageUtils;
+import fr.techad.edc.httpd.utils.LangUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -94,7 +94,7 @@ public class ContentSearcher extends ContentBase {
   }
 
   private boolean checkLanguageIsPresent(String lang) throws IOException {
-    List<String> languages = LanguageUtils.findLanguages(getConfig());
+    List<String> languages = LangUtils.findLanguages(getConfig());
     return languages.contains(lang);
   }
 

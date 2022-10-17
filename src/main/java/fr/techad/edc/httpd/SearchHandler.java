@@ -3,7 +3,7 @@ package fr.techad.edc.httpd;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import fr.techad.edc.httpd.utils.LanguageUtils;
+import fr.techad.edc.httpd.utils.LangUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class SearchHandler implements HttpHandler {
       String search = query.element();
       ContentSearcher contentSearcher = new ContentSearcher(config);
       List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,
-          LanguageUtils.getDefaultLanguage(config));
+          LangUtils.getDefaultLanguage(config));
       bytes = objectMapper.writeValueAsBytes(searchResults);
     } else {
       bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));

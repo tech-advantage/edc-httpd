@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class LanguageUtils {
+public class LangUtils {
 
     private static Optional<File> getProductPath(WebServerConfig config) {
         File docFolder = new File(config.getBase() + "/" + config.getDocFolder() + "/");
