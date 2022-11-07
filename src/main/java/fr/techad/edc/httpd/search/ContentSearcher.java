@@ -54,7 +54,7 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage) throws IOException, ParseException {
+      String defaultLanguage, List<String> languages) throws IOException, ParseException {
     // Handle wildcard with exacttMode condition
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
@@ -87,15 +87,10 @@ public class ContentSearcher extends ContentBase {
       results.add(documentationSearchResult);
 
     }
-    if (results.isEmpty() && !defaultLanguage.equals(lang) && !checkLanguageIsPresent(lang)) {
-      return search(search, defaultLanguage, limit, exact, defaultLanguage);
+    if (results.isEmpty() && !defaultLanguage.equals(lang) && !languages.contains(lang)) {
+      return search(search, defaultLanguage, limit, exact, defaultLanguage, languages);
     }
     return results;
-  }
-
-  private boolean checkLanguageIsPresent(String lang) throws IOException {
-    List<String> languages = LangUtils.findLanguages(getConfig());
-    return languages.contains(lang);
   }
 
   private void createSearcher() throws IOException {

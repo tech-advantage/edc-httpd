@@ -50,7 +50,7 @@ public class SearchHandler implements HttpHandler {
       String search = query.element();
       ContentSearcher contentSearcher = new ContentSearcher(config);
       List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,
-          LangUtils.getDefaultLanguage(config));
+          LangUtils.getDefaultLanguage(config), LangUtils.findLanguages(config));
       bytes = objectMapper.writeValueAsBytes(searchResults);
     } else {
       bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));
