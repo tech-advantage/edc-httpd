@@ -1,19 +1,10 @@
 package fr.techad.edc.httpd;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import org.apache.commons.io.FileUtils;
+import fr.techad.edc.httpd.utils.LangUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +22,7 @@ import io.undertow.util.Headers;
 public class SearchHandler implements HttpHandler {
   static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
   private final ObjectMapper objectMapper;
-  private final WebServerConfig config;
+  private WebServerConfig config;
 
   public SearchHandler(ObjectMapper objectMapper, WebServerConfig config) {
     this.objectMapper = objectMapper;
@@ -45,12 +36,12 @@ public class SearchHandler implements HttpHandler {
 
     Deque<String> query = queryParameters.get("query");
 
-    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("exact-match", queryParameters));
+    Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("match-whole-word", queryParameters));
     String lang = getParamValue("lang", queryParameters);
 
     int limitResults = 100;
     try {
-      limitResults = Integer.valueOf(getParamValue("limit", queryParameters));
+      limitResults = Integer.valueOf(getParamValue("max-result-number", queryParameters));
     } catch (NumberFormatException ex) {
       LOGGER.error("Limit is not a number, using this default limit :{}", limitResults);
     }
@@ -59,27 +50,13 @@ public class SearchHandler implements HttpHandler {
       String search = query.element();
       ContentSearcher contentSearcher = new ContentSearcher(config);
       List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,
-          getDefaultLanguage());
+          LangUtils.getDefaultLanguage(config), LangUtils.findLanguages(config));
       bytes = objectMapper.writeValueAsBytes(searchResults);
     } else {
       bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));
     }
     exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
     exchange.getResponseSender().send(ByteBuffer.wrap(bytes));
-  }
-
-  private String getDefaultLanguage() throws IOException {
-    File docFolder = new File(this.config.getBase() + "/" + this.config.getDocFolder() + "/");
-    File[] products = docFolder.listFiles(File::isDirectory);
-    String parsed = "";
-    Optional<File> product = Arrays.stream(products).filter(p -> !p.getName().equals("i18n")).findFirst();
-    if (product.isPresent()) {
-      parsed = FileUtils.readFileToString(new File(product.get().getCanonicalPath() + "/info.json"),
-          StandardCharsets.UTF_8.name());
-      JSONObject obj = new JSONObject(parsed);
-      return obj.getString("defaultLanguage");
-    }
-    return "";
   }
 
   private String getParamValue(String parameterName, Map<String, Deque<String>> queryParameters) {

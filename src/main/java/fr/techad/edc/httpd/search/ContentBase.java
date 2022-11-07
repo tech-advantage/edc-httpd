@@ -20,12 +20,18 @@ public class ContentBase {
   public static final String DOC_CONTENT = "content";
   public static final String DOC_URL = "url";
   private final Path indexPath;
+  private final WebServerConfig config;
 
   protected ContentBase(WebServerConfig webServerConfig) {
     String configIndexPath = webServerConfig.getIndexPath();
     if (StringUtils.isBlank(configIndexPath))
       configIndexPath = System.getProperty("user.home") + "/.edc/index";
     this.indexPath = Paths.get(configIndexPath);
+    this.config = webServerConfig;
+  }
+
+  protected WebServerConfig getConfig(){
+    return this.config;
   }
 
   protected Path getIndexPath() {

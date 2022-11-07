@@ -1,12 +1,9 @@
 package fr.techad.edc.httpd.search;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import fr.techad.edc.httpd.utils.LangUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -15,6 +12,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -33,7 +31,6 @@ public class ContentSearcher extends ContentBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentSearcher.class);
   private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE };
   private static final Map<String, Float> BOOTS;
-
   static {
     Map<String, Float> aMap = new HashMap<>();
     aMap.put(DOC_LABEL, 2f);
@@ -57,7 +54,7 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage) throws IOException, ParseException {
+      String defaultLanguage, Set<String> languages) throws IOException, ParseException {
     // Handle wildcard with exacttMode condition
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
@@ -67,11 +64,12 @@ public class ContentSearcher extends ContentBase {
     LOGGER.debug("Search {}", search);
     createSearcher();
     QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
+    qp.setAllowLeadingWildcard(true);
     String langSearch = "";
     if (StringUtils.isNotBlank(lang)) {
       langSearch = " AND languageCode:" + lang;
     }
-    Query query = qp.parse(search + langSearch);
+    Query query = qp.parse(QueryParserBase.escape(search) + langSearch);
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
@@ -89,8 +87,8 @@ public class ContentSearcher extends ContentBase {
       results.add(documentationSearchResult);
 
     }
-    if (results.isEmpty() && !defaultLanguage.equals(lang)) {
-      return search(search, defaultLanguage, limit, exact, defaultLanguage);
+    if (results.isEmpty() && !defaultLanguage.equals(lang) && !languages.contains(lang)) {
+      return search(search, defaultLanguage, limit, exact, defaultLanguage, languages);
     }
     return results;
   }
