@@ -52,6 +52,7 @@ public class LangUtils {
                 return languages;
             } catch(Exception e) {
                 LOGGER.error("Could not read values of the languages key from info.json file", e);
+                throw e;
             }
         }
         return Collections.emptySet();
