@@ -1,9 +1,12 @@
 package fr.techad.edc.httpd.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.techad.edc.httpd.SearchHandler;
 import fr.techad.edc.httpd.WebServerConfig;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class LangUtils {
+    static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
 
     private static Optional<File> getProductPath(WebServerConfig config) {
         File docFolder = new File(config.getBase() + "/" + config.getDocFolder() + "/");
@@ -46,7 +50,7 @@ public class LangUtils {
                 Set<String> languages = objectMapper.readValue(obj.getJSONArray("languages").toString(), HashSet.class);
                 return languages;
             } catch(Exception e) {
-                e.printStackTrace();
+                throw new IOException(e.getMessage());
             }
         }
         return Collections.emptySet();
