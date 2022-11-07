@@ -48,8 +48,10 @@ public class LangUtils {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 Set<String> languages = objectMapper.readValue(obj.getJSONArray("languages").toString(), HashSet.class);
+                LOGGER.debug("Reading languages from info.json", languages);
                 return languages;
             } catch(Exception e) {
+                LOGGER.error("Could not read languages from info.json", e);
                 throw new IOException(e.getMessage());
             }
         }
