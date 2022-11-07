@@ -33,7 +33,7 @@ public class LangUtils {
         return "";
     }
 
-    public static List<String> findLanguages(WebServerConfig config) throws IOException {
+    public static Set<String> findLanguages(WebServerConfig config) throws IOException {
         Optional<File> product = getProductPath(config);
         String parsed;
 
@@ -43,12 +43,12 @@ public class LangUtils {
             JSONObject obj = new JSONObject(parsed);
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                List<String> languages = objectMapper.readValue(obj.getJSONArray("languages").toString(), List.class);
+                Set<String> languages = objectMapper.readValue(obj.getJSONArray("languages").toString(), HashSet.class);
                 return languages;
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 }

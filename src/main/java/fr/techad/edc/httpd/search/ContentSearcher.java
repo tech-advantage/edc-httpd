@@ -54,7 +54,7 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage, List<String> languages) throws IOException, ParseException {
+      String defaultLanguage, Set<String> languages) throws IOException, ParseException {
     // Handle wildcard with exacttMode condition
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
