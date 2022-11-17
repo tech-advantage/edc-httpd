@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.techad.edc.httpd.WebServerConfig;
+import fr.techad.edc.httpd.utils.AnalyzerUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +37,8 @@ public class ContentIndexer extends ContentBase {
   static final Logger LOGGER = LoggerFactory.getLogger(ContentIndexer.class);
 
   private final String docBase;
-  private IndexWriter indexWriter;
+  private IndexWriter indexWriterInsensitive;
+  private IndexWriter indexWriterSensitive;
   private long counter;
 
   public ContentIndexer(WebServerConfig webServerConfig) {
@@ -52,13 +56,17 @@ public class ContentIndexer extends ContentBase {
   public long index() throws IOException {
     LOGGER.info("Start help indexing");
     counter = 0;
-    createIndexWriter();
-    indexWriter.deleteAll();
+    createIndexWriter(getIndexCaseInsensitivePath(), new StandardAnalyzer());
+    createIndexWriter(getIndexCaseSensitivePath(), new AnalyzerUtils());
+    indexWriterInsensitive.deleteAll();
+    indexWriterSensitive.deleteAll();
     List<MultiDocItem> multiDocItems = getMultiDoc();
 
     indexMultiDoc(multiDocItems);
-    indexWriter.commit();
-    indexWriter.close();
+    indexWriterInsensitive.commit();
+    indexWriterSensitive.commit();
+    indexWriterInsensitive.close();
+    indexWriterSensitive.close();
     LOGGER.info("Help indexing ending, indexed {} items", counter);
     return counter;
   }
@@ -124,7 +132,7 @@ public class ContentIndexer extends ContentBase {
   }
 
   private void indexTopics(Long strategyId, String languageCode, String strategyLabel, JsonNode rootNode)
-      throws IOException {
+          throws IOException {
     ConcurrentLinkedQueue<JsonNode> topicsQueue = new ConcurrentLinkedQueue();
     if (rootNode.isArray()) {
       rootNode.forEach(topicsQueue::add);
@@ -141,7 +149,7 @@ public class ContentIndexer extends ContentBase {
   }
 
   private void indexTopic(Long strategyId, String languageCode, String strategyLabel, JsonNode topicNode)
-      throws IOException {
+          throws IOException {
     String id = topicNode.get("id").asText();
     String label = topicNode.get("label").asText();
     String type = topicNode.get("type").asText("CHAPTER");
@@ -161,13 +169,21 @@ public class ContentIndexer extends ContentBase {
       document.add(new TextField(DOC_CONTENT, content, Field.Store.YES));
     }
     document.add(new TextField(DOC_URL, fileName, Field.Store.YES));
-    this.indexWriter.addDocument(document);
+    this.indexWriterInsensitive.addDocument(document);
+    this.indexWriterSensitive.addDocument(document);
     counter++;
   }
 
-  private void createIndexWriter() throws IOException {
-    FSDirectory dir = FSDirectory.open(getIndexPath());
-    IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
-    indexWriter = new IndexWriter(dir, config);
+  private void createIndexWriter(Path path, Analyzer analyzer) throws IOException {
+    FSDirectory dir = FSDirectory.open(path);
+    IndexWriterConfig config = new IndexWriterConfig(analyzer);
+    config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+    if(path == getIndexCaseInsensitivePath()){
+      indexWriterInsensitive = new IndexWriter(dir, config);
+      LOGGER.debug("Index insensitive case stored in {}", path);
+    } else {
+      indexWriterSensitive = new IndexWriter(dir, config);
+      LOGGER.debug("Index sensitive case stored in {}", path);
+    }
   }
 }
