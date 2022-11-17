@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
 public class WebServerConfig {
 
     private String base;
-    private String indexPath = null;
+    private String indexCaseInsensitivePath = null;
+    private String indexCaseSensitivePath = null;
     private long transferMinSize = 100;
     private long requestMaxSize = (long) 20E3;
     private boolean indexUrlEnabled = false;
@@ -23,6 +24,7 @@ public class WebServerConfig {
         Matcher matcher = pattern.matcher(s);
         return matcher.find() ? matcher.start() : -1;
     }
+
     public static long parseAny(String arg0)
     {
         String units = "BKMGTPEZY";
@@ -33,14 +35,14 @@ public class WebServerConfig {
         int power = units.indexOf(unitChar);
         boolean isSi = unitString.indexOf('i')!=-1;
         int factor = 1024;
-        if (isSi) 
+        if (isSi)
         {
             factor = 1000;
         }
 
-        return (long) (ret * Math.pow(factor, power));       
-
+        return (long) (ret * Math.pow(factor, power));
     }
+
     public WebServerConfig() {
         super();
     }
@@ -53,12 +55,20 @@ public class WebServerConfig {
         this.base = base;
     }
 
-    public String getIndexPath() {
-        return indexPath;
+    public String getIndexCaseInsensitivePath() {
+        return indexCaseInsensitivePath;
     }
 
-    public void setIndexPath(String indexPath) {
-        this.indexPath = indexPath;
+    public void setIndexCaseInsensitivePath(String indexPath) {
+        this.indexCaseInsensitivePath = indexPath;
+    }
+
+    public String getIndexCaseSensitivePath() {
+        return indexCaseSensitivePath;
+    }
+
+    public void setIndexCaseSensitivePath(String indexPath) {
+        this.indexCaseSensitivePath = indexPath;
     }
 
     public long getRequestMaxSize() {
@@ -92,11 +102,12 @@ public class WebServerConfig {
     public void setHelpFolder(String helpFolder) {
         this.helpFolder = helpFolder;
     }
+
     public long getTransferMinSize() {
-      return transferMinSize;
-    }
-    public void setTransferMinSize(long transferMinSize) {
-      this.transferMinSize = transferMinSize;
+        return transferMinSize;
     }
 
+    public void setTransferMinSize(long transferMinSize) {
+        this.transferMinSize = transferMinSize;
+    }
 }

@@ -14,13 +14,19 @@ import java.util.List;
  */
 public class ContentSearcherTest {
 
-  @Test
-  public void shouldSearchStorehouse() throws IOException, ParseException {
+  private ContentSearcher getContentSearcher(){
     File file = new File("src/test/resources/edc-doc");
     WebServerConfig webServerConfig = new WebServerConfig();
     webServerConfig.setBase(file.getAbsolutePath());
     ContentSearcher contentSearcher = new ContentSearcher(webServerConfig);
-    List<DocumentationSearchResult> searchResults = contentSearcher.search("storehouse", "", 100, true, "", null);
+
+    return contentSearcher;
+  }
+
+  @Test
+  public void shouldSearchStorehouse() throws IOException, ParseException {
+    ContentSearcher contentSearcher = getContentSearcher();
+    List<DocumentationSearchResult> searchResults = contentSearcher.search("storehouse", "", 100, true, false, null, null);
     Assertions.assertEquals(11, searchResults.size());
 
     // check weight : first the query word in the label, then in the content
@@ -38,5 +44,20 @@ public class ContentSearcherTest {
         nbNoStorehouseInLabel++;
     }
     Assertions.assertEquals(5, nbNoStorehouseInLabel);
+  }
+
+  @Test
+  public void shouldSearchProductMatchCase() throws IOException, ParseException {
+    ContentSearcher contentSearcher = getContentSearcher();
+    List<DocumentationSearchResult> searchResults = contentSearcher.search("Product", "", 100, true, true, null, null);
+    Assertions.assertEquals(5, searchResults.size());
+
+    long nbProductInLabel = 0;
+    for (int i = 0; i < searchResults.size(); i++) {
+      DocumentationSearchResult documentationSearchResult = searchResults.get(i);
+      if (documentationSearchResult.getLabel().contains("Product"))
+        nbProductInLabel++;
+    }
+    Assertions.assertEquals(1, nbProductInLabel);
   }
 }

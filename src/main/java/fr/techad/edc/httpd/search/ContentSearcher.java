@@ -3,8 +3,9 @@ package fr.techad.edc.httpd.search;
 import java.io.IOException;
 import java.util.*;
 
-import fr.techad.edc.httpd.utils.LangUtils;
+import fr.techad.edc.httpd.utils.AnalyzerUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -12,11 +13,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.queryparser.classic.QueryParserBase;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
@@ -41,6 +38,8 @@ public class ContentSearcher extends ContentBase {
 
   private IndexSearcher indexSearcher;
 
+
+
   public ContentSearcher(WebServerConfig webServerConfig) {
     super(webServerConfig);
   }
@@ -54,22 +53,29 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage, Set<String> languages) throws IOException, ParseException {
-    // Handle wildcard with exacttMode condition
+                                                boolean matchCase, String defaultLanguage, Set<String> languages) throws IOException, ParseException {
+
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
     }
 
     List<DocumentationSearchResult> results = new ArrayList<>();
     LOGGER.debug("Search {}", search);
-    createSearcher();
-    QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
+
+    createSearcher(matchCase);
+
+    Analyzer caseAnalyzer = !matchCase ? new StandardAnalyzer() : new AnalyzerUtils();
+    QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, caseAnalyzer, BOOTS);
     qp.setAllowLeadingWildcard(true);
+    qp.setDefaultOperator(QueryParser.Operator.AND);
+
     String langSearch = "";
     if (StringUtils.isNotBlank(lang)) {
       langSearch = " AND languageCode:" + lang;
     }
-    Query query = qp.parse(QueryParserBase.escape(search) + langSearch);
+
+    Query query = qp.parse(search + langSearch);
+
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
@@ -88,14 +94,15 @@ public class ContentSearcher extends ContentBase {
 
     }
     if (results.isEmpty() && !defaultLanguage.equals(lang) && !languages.contains(lang)) {
-      return search(search, defaultLanguage, limit, exact, defaultLanguage, languages);
+      return search(search, defaultLanguage, limit, exact, matchCase, defaultLanguage, languages);
     }
+
     return results;
   }
 
-  private void createSearcher() throws IOException {
+  private void createSearcher(boolean matchCase) throws IOException {
     if (indexSearcher == null) {
-      Directory dir = FSDirectory.open(getIndexPath());
+      Directory dir = !matchCase ? FSDirectory.open(getIndexCaseInsensitivePath()) : FSDirectory.open(getIndexCaseSensitivePath());
       IndexReader reader = DirectoryReader.open(dir);
       indexSearcher = new IndexSearcher(reader);
     }
