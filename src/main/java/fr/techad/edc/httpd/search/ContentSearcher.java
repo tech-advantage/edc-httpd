@@ -34,16 +34,14 @@ public class ContentSearcher extends ContentBase {
   private static final Map<String, Float> BOOTS_LOWER_CASE;
   static {
     Map<String, Float> normalCaseMap = new HashMap<>();
+    Map<String, Float> lowerCaseMap = new HashMap<>();
     normalCaseMap.put(DOC_LABEL, 2f);
     normalCaseMap.put(DOC_CONTENT_NORMAL_CASE, 1f);
     normalCaseMap.put(DOC_TYPE, .5f);
-    BOOTS_NORMAL_CASE = Collections.unmodifiableMap(normalCaseMap);
-  }
-  static {
-    Map<String, Float> lowerCaseMap = new HashMap<>();
     lowerCaseMap.put(DOC_LABEL, 2f);
     lowerCaseMap.put(DOC_CONTENT_LOWER_CASE, 1f);
     lowerCaseMap.put(DOC_TYPE, .5f);
+    BOOTS_NORMAL_CASE = Collections.unmodifiableMap(normalCaseMap);
     BOOTS_LOWER_CASE = Collections.unmodifiableMap(lowerCaseMap);
   }
 
