@@ -37,6 +37,7 @@ public class SearchHandler implements HttpHandler {
     Deque<String> query = queryParameters.get("query");
 
     Boolean exactMatch = BooleanUtils.toBoolean(getParamValue("match-whole-word", queryParameters));
+    Boolean matchCase = BooleanUtils.toBoolean(getParamValue("match-case", queryParameters));
     String lang = getParamValue("lang", queryParameters);
 
     int limitResults = 100;
@@ -50,7 +51,7 @@ public class SearchHandler implements HttpHandler {
       String search = query.element();
       ContentSearcher contentSearcher = new ContentSearcher(config);
       List<DocumentationSearchResult> searchResults = contentSearcher.search(search, lang, limitResults, exactMatch,
-          LangUtils.getDefaultLanguage(config), LangUtils.findLanguages(config));
+          matchCase, LangUtils.getDefaultLanguage(config), LangUtils.findLanguages(config));
       bytes = objectMapper.writeValueAsBytes(searchResults);
     } else {
       bytes = objectMapper.writeValueAsBytes(Collections.singletonMap("error", "malformed query"));

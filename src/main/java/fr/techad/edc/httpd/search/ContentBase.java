@@ -17,7 +17,8 @@ public class ContentBase {
   public static final String DOC_LANGUAGE_CODE = "languageCode";
   public static final String DOC_LABEL = "label";
   public static final String DOC_TYPE = "type";
-  public static final String DOC_CONTENT = "content";
+  public static final String DOC_CONTENT_NORMAL_CASE = "normal_case_content";
+  public static final String DOC_CONTENT_LOWER_CASE = "lower_case_content";
   public static final String DOC_URL = "url";
   private final Path indexPath;
   private final WebServerConfig config;

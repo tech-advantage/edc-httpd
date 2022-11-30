@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.techad.edc.httpd.WebServerConfig;
+import fr.techad.edc.httpd.utils.CaseSensitiveStandardAnalyzer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -22,9 +25,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -36,6 +41,7 @@ public class ContentIndexer extends ContentBase {
   private final String docBase;
   private IndexWriter indexWriter;
   private long counter;
+
 
   public ContentIndexer(WebServerConfig webServerConfig) {
     super(webServerConfig);
@@ -158,7 +164,8 @@ public class ContentIndexer extends ContentBase {
     if (type.equals("DOCUMENT")) {
       org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(new File(docBase + "/" + fileName), "UTF-8");
       String content = jsoupDoc.text();
-      document.add(new TextField(DOC_CONTENT, content, Field.Store.YES));
+      document.add(new TextField(DOC_CONTENT_NORMAL_CASE, content, Field.Store.YES));
+      document.add(new TextField(DOC_CONTENT_LOWER_CASE, content, Field.Store.YES));
     }
     document.add(new TextField(DOC_URL, fileName, Field.Store.YES));
     this.indexWriter.addDocument(document);
@@ -167,7 +174,13 @@ public class ContentIndexer extends ContentBase {
 
   private void createIndexWriter() throws IOException {
     FSDirectory dir = FSDirectory.open(getIndexPath());
-    IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
+    Map<String, Analyzer> analyzerPerField = new HashMap<String, Analyzer>();
+    // Associate analyzer to the DOC_CONTENT_NORMAL_CASE field to do case sensitive search
+    analyzerPerField.put(DOC_CONTENT_NORMAL_CASE, new CaseSensitiveStandardAnalyzer());
+    PerFieldAnalyzerWrapper analyzer = new PerFieldAnalyzerWrapper(
+            new StandardAnalyzer(), analyzerPerField);
+
+    IndexWriterConfig config = new IndexWriterConfig(analyzer);
     indexWriter = new IndexWriter(dir, config);
   }
 }
