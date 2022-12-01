@@ -2,9 +2,11 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
 }
 group 'fr.techad'
-version '2.0.1'
+version '2.1.0'
 sourceCompatibility = 1.8
 ext.withDependencies=project.hasProperty('withDependencies')
 //Used to be able to add dependencies to jar
@@ -12,8 +14,6 @@ if(withDependencies){
 configurations.implementation.setCanBeResolved(true)
 configurations.api.setCanBeResolved(true)
 }
-
-
 
 java {
     withJavadocJar()
@@ -29,8 +29,9 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.4.4'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.apache.lucene:lucene-core:9.4.0'
-    implementation 'org.apache.lucene:lucene-queryparser:9.4.0'
+    implementation 'org.apache.lucene:lucene-analysis-common:9.4.2'
+    implementation 'org.apache.lucene:lucene-core:9.4.2'
+    implementation 'org.apache.lucene:lucene-queryparser:9.4.2'
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation 'com.auth0:java-jwt:4.0.0'
     implementation 'net.lingala.zip4j:zip4j:2.11.2'
@@ -56,6 +57,17 @@ from {
     }
   }
 }
+
+shadowJar {
+    archiveBaseName.set('edc-httpd-java')
+    archiveClassifier.set('')
+    archiveVersion.set('2.1.0')
+    mergeServiceFiles()
+    manifest {
+        attributes 'Main-Class': 'fr.techad.edc.httpd.EdcWebServer'
+    }
+}
+
 //Execute Junit tests
 test {
     useJUnitPlatform()
@@ -90,10 +102,14 @@ publishing {
                     developer {
                     name = 'Gregory Cochin'
                     email= 'gregory.cochin@tech-advantage.com'
-                    }                    
+                    }
                     developer {
                     name = 'Mathieu Benard'
                     email= 'mathieu.benard@tech-advantage.com'
+                    }
+                    developer {
+                    name = 'Florian Bracq'
+                    email= 'florian.bracq@tech-advantage.com'
                     }
                 }
                 scm {
@@ -116,9 +132,9 @@ signing {
     setRequired {
         // signing is only required if the artifacts are to be published
         gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
-	}
-	sign publishing.publications.mavenJava
-	sign configurations.archives
+    }
+    sign publishing.publications.mavenJava
+    sign configurations.archives
 }
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
@@ -128,6 +144,7 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 artifacts {
+    shadowJar
     archives sourcesJar
     archives javadocJar
 }
@@ -136,7 +153,7 @@ javadoc {
         options.addBooleanOption('html5', true)
     }
 }
-
+tasks.build.dependsOn tasks.shadowJar
 task install(dependsOn: publishToMavenLocal) {
     group = 'Publishing'
     description = 'Installs artifacts to local Maven repository'
@@ -150,4 +167,4 @@ task release() {
     dependsOn javadoc
 }
 
-
+build.dependsOn(shadowJar);

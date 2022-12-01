@@ -3,7 +3,7 @@ package fr.techad.edc.httpd.search;
 import java.io.IOException;
 import java.util.*;
 
-import fr.techad.edc.httpd.utils.LangUtils;
+import fr.techad.edc.httpd.utils.CaseSensitiveStandardAnalyzer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -12,7 +12,6 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -29,17 +28,25 @@ import fr.techad.edc.httpd.WebServerConfig;
  */
 public class ContentSearcher extends ContentBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentSearcher.class);
-  private static final String[] SEARCH_FIELDS = { DOC_LABEL, DOC_CONTENT, DOC_TYPE };
-  private static final Map<String, Float> BOOTS;
+  private final static String[] SEARCH_FIELD_NORMAL_CASE = { DOC_LABEL, DOC_CONTENT_NORMAL_CASE, DOC_TYPE };
+  private final static String[] SEARCH_FIELD_LOWER_CASE = { DOC_LABEL, DOC_CONTENT_LOWER_CASE, DOC_TYPE };
+  private static final Map<String, Float> BOOTS_NORMAL_CASE;
+  private static final Map<String, Float> BOOTS_LOWER_CASE;
   static {
-    Map<String, Float> aMap = new HashMap<>();
-    aMap.put(DOC_LABEL, 2f);
-    aMap.put(DOC_CONTENT, 1f);
-    aMap.put(DOC_TYPE, .5f);
-    BOOTS = Collections.unmodifiableMap(aMap);
+    Map<String, Float> normalCaseMap = new HashMap<>();
+    Map<String, Float> lowerCaseMap = new HashMap<>();
+    normalCaseMap.put(DOC_LABEL, 2f);
+    normalCaseMap.put(DOC_CONTENT_NORMAL_CASE, 1f);
+    normalCaseMap.put(DOC_TYPE, .5f);
+    lowerCaseMap.put(DOC_LABEL, 2f);
+    lowerCaseMap.put(DOC_CONTENT_LOWER_CASE, 1f);
+    lowerCaseMap.put(DOC_TYPE, .5f);
+    BOOTS_NORMAL_CASE = Collections.unmodifiableMap(normalCaseMap);
+    BOOTS_LOWER_CASE = Collections.unmodifiableMap(lowerCaseMap);
   }
 
   private IndexSearcher indexSearcher;
+  private QueryParser qp;
 
   public ContentSearcher(WebServerConfig webServerConfig) {
     super(webServerConfig);
@@ -54,7 +61,7 @@ public class ContentSearcher extends ContentBase {
    * @throws ParseException if the search parameter is malformed
    */
   public List<DocumentationSearchResult> search(String search, String lang, int limit, boolean exact,
-      String defaultLanguage, Set<String> languages) throws IOException, ParseException {
+      boolean matchCase, String defaultLanguage, Set<String> languages) throws IOException, ParseException {
     // Handle wildcard with exacttMode condition
     if (!exact && !search.endsWith("*")) {
       search = search + "*";
@@ -63,13 +70,21 @@ public class ContentSearcher extends ContentBase {
     List<DocumentationSearchResult> results = new ArrayList<>();
     LOGGER.debug("Search {}", search);
     createSearcher();
-    QueryParser qp = new MultiFieldQueryParser(SEARCH_FIELDS, new StandardAnalyzer(), BOOTS);
+
+    if(matchCase){
+      qp = new MultiFieldQueryParser(SEARCH_FIELD_NORMAL_CASE, new CaseSensitiveStandardAnalyzer(), BOOTS_NORMAL_CASE);
+    } else {
+      qp = new MultiFieldQueryParser(SEARCH_FIELD_LOWER_CASE, new StandardAnalyzer(), BOOTS_LOWER_CASE);
+    }
+
     qp.setAllowLeadingWildcard(true);
+    qp.setDefaultOperator(QueryParser.Operator.AND);
+
     String langSearch = "";
     if (StringUtils.isNotBlank(lang)) {
       langSearch = " AND languageCode:" + lang;
     }
-    Query query = qp.parse(QueryParserBase.escape(search) + langSearch);
+    Query query = qp.parse(search + langSearch);
     TopDocs hits = indexSearcher.search(query, limit);
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
@@ -88,7 +103,7 @@ public class ContentSearcher extends ContentBase {
 
     }
     if (results.isEmpty() && !defaultLanguage.equals(lang) && !languages.contains(lang)) {
-      return search(search, defaultLanguage, limit, exact, defaultLanguage, languages);
+      return search(search, defaultLanguage, limit, exact, matchCase, defaultLanguage, languages);
     }
     return results;
   }
