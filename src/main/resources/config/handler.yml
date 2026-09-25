@@ -1,0 +1,2 @@
+# Disable the light-4j handler chain so the HandlerProvider declared in service.yml is used
+enabled: false

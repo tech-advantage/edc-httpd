@@ -89,7 +89,7 @@ public class ContentSearcher extends ContentBase {
     LOGGER.debug("Found {} results for the search '{}'", hits.totalHits, search);
 
     for (ScoreDoc sd : hits.scoreDocs) {
-      Document d = indexSearcher.doc(sd.doc);
+      Document d = indexSearcher.storedFields().document(sd.doc);
       DocumentationSearchResult documentationSearchResult = new DocumentationSearchResult();
       String idStr = d.get(DOC_ID);
       documentationSearchResult.setId(Long.valueOf(idStr));

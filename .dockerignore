@@ -1,0 +1,7 @@
+.git
+.gradle
+.idea
+.mvn
+build
+private.key
+token.info
